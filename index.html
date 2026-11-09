@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0B0B0B">
+<title>GAAP · Prenota il tuo taglio</title>
+<style>
+  :root { --bg:#0B0B0B; --card:#161616; --line:#2A2A2A; --fg:#F5F5F2; --mut:#9B9B96; --acc:#F5F5F2; --ok:#7BD88F; color-scheme: dark; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.45 -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; }
+  .app { max-width:480px; margin:0 auto; min-height:100vh; padding:calc(env(safe-area-inset-top,0px) + 16px) max(18px, env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 110px) max(18px, env(safe-area-inset-left,0px)); }
+  header { display:flex; align-items:center; gap:12px; margin-bottom:18px; }
+  .logo { width:46px; height:46px; border-radius:50%; background:#000; border:1px solid var(--line); display:grid; place-items:center; font-weight:900; font-size:22px; letter-spacing:-1px; }
+  header h1 { margin:0; font-size:20px; letter-spacing:.18em; }
+  header p { margin:0; color:var(--mut); font-size:13px; }
+  .tabs { display:flex; gap:6px; margin-left:auto; }
+  .tabs button { background:none; border:1px solid var(--line); color:var(--mut); border-radius:99px; padding:6px 12px; font-size:13px; }
+  .tabs button.on { color:var(--bg); background:var(--fg); border-color:var(--fg); }
+  .steps { display:flex; gap:6px; margin:4px 0 18px; }
+  .steps i { flex:1; height:3px; border-radius:2px; background:var(--line); }
+  .steps i.on { background:var(--fg); }
+  h2 { font-size:24px; margin:0 0 4px; letter-spacing:-.01em; text-wrap:balance; }
+  .sub { color:var(--mut); margin:0 0 16px; font-size:14px; }
+  .list { display:flex; flex-direction:column; gap:10px; }
+  .item { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:14px 16px; display:flex; gap:12px; align-items:center; text-align:left; color:var(--fg); width:100%; font:inherit; }
+  .item.sel { border-color:var(--fg); box-shadow:0 0 0 1px var(--fg) inset; }
+  .item .t { flex:1; min-width:0; }
+  .item b { display:block; font-size:15px; line-height:1.3; }
+  .item small { color:var(--mut); font-size:13px; }
+  .price { font-weight:700; white-space:nowrap; }
+  .av { width:44px; height:44px; border-radius:50%; background:#222; display:grid; place-items:center; font-weight:700; flex:none; }
+  .days { display:flex; gap:8px; overflow-x:auto; padding-bottom:6px; scrollbar-width:none; }
+  .day { flex:none; width:62px; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:10px 0; text-align:center; color:var(--fg); font:inherit; }
+  .day small { display:block; color:var(--mut); font-size:12px; text-transform:uppercase; }
+  .day b { font-size:20px; }
+  .day.sel { background:var(--fg); color:var(--bg); } .day.sel small { color:#555; }
+  .day:disabled { opacity:.3; }
+  .slots { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:16px; }
+  .slot { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:10px 0; color:var(--fg); font:inherit; font-size:15px; }
+  .slot.sel { background:var(--fg); color:var(--bg); }
+  .slot:disabled { opacity:.25; text-decoration:line-through; }
+  label { display:block; font-size:13px; color:var(--mut); margin:14px 0 6px; }
+  input, textarea { width:100%; background:var(--card); border:1px solid var(--line); border-radius:12px; color:var(--fg); font:inherit; padding:12px 14px; }
+  .sum { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:14px 16px; margin-top:16px; }
+  .sum div { display:flex; justify-content:space-between; gap:12px; padding:4px 0; font-size:14px; }
+  .sum div span:first-child { color:var(--mut); }
+  .bar { position:fixed; left:0; right:0; bottom:0; padding:12px max(18px, env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 12px) max(18px, env(safe-area-inset-left,0px)); background:linear-gradient(transparent, var(--bg) 30%); }
+  .bar .in { max-width:480px; margin:0 auto; display:flex; gap:10px; align-items:center; }
+  .bar .tot { flex:1; font-size:13px; color:var(--mut); } .bar .tot b { display:block; color:var(--fg); font-size:17px; }
+  .btn { background:var(--fg); color:var(--bg); border:0; border-radius:99px; padding:15px 26px; font:inherit; font-weight:700; }
+  .btn:disabled { opacity:.3; }
+  .ghost { background:none; color:var(--fg); border:1px solid var(--line); }
+  .ok { text-align:center; padding-top:30px; }
+  .ok .tick { width:72px; height:72px; border-radius:50%; border:2px solid var(--ok); color:var(--ok); display:grid; place-items:center; font-size:34px; margin:0 auto 18px; }
+  .info { color:var(--mut); font-size:13px; margin-top:22px; line-height:1.6; }
+  .empty { color:var(--mut); text-align:center; padding:30px 0; }
+  .agday { margin:18px 0 6px; font-weight:700; text-transform:capitalize; }
+  .back { background:none; border:0; color:var(--mut); font:inherit; padding:0; margin-bottom:10px; }
+  .note { font-size:12px; color:var(--mut); margin-top:10px; }
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<div class="bar" id="bar" hidden><div class="in"><div class="tot" id="tot"></div><button class="btn" id="next">Continua</button></div></div>
+<script>
+/* Dati presi dalla pagina Fresha di GAAP (novembre 2026) */
+const SALONE = { nome:"GAAP", sotto:"Giovanni Angiola Artistic Place", indirizzo:"Via Luigi Einaudi 9, Santeramo in Colle" };
+const SERVIZI = [
+  { id:"s1", nome:"Taglio + shampoo care Davines", desc:"Shampoo personalizzato per capelli e cute, taglio e styling", min:45, euro:25 },
+  { id:"s2", nome:"Taglio + doppio shampoo + barba", desc:"", min:60, euro:23 },
+  { id:"s3", nome:"Taglio + uno shampoo + barba", desc:"", min:45, euro:20 },
+  { id:"s4", nome:"Taglio + doppio shampoo", desc:"", min:45, euro:20 },
+  { id:"s5", nome:"Taglio + uno shampoo", desc:"", min:45, euro:17 },
+  { id:"s6", nome:"Taglio bambino", desc:"", min:30, euro:14 },
+  { id:"s7", nome:"Taper + barba", desc:"", min:30, euro:13 },
+  { id:"s8", nome:"Taper", desc:"", min:15, euro:8 },
+  { id:"s9", nome:"Barba", desc:"", min:15, euro:6 }
+];
+const TEAM = [
+  { id:"any", nome:"Primo disponibile", ruolo:"Il barbiere libero all'orario scelto" },
+  { id:"giovanni", nome:"Giovanni", ruolo:"Titolare" },
+  { id:"antonello", nome:"Antonello", ruolo:"Senior stylist" },
+  { id:"valerio", nome:"Valerio", ruolo:"Senior stylist" },
+  { id:"pio", nome:"Pio", ruolo:"Senior stylist" },
+  { id:"nunzio", nome:"Nunzio", ruolo:"Stylist" }
+];
+/* Orari: 0 = domenica */
+const ORARI = { 0:[], 1:[], 2:[["08:45","13:15"],["14:15","19:15"]], 3:[["08:45","13:15"],["14:15","19:15"]], 4:[["08:45","13:15"],["14:15","19:15"]], 5:[["08:45","19:15"]], 6:[["08:45","19:15"]] };
+
+const st = { vista:"prenota", step:0, servizio:null, barbiere:null, giorno:null, ora:null, nome:"", tel:"", note:"", ultima:null };
+let prenotazioni = []; // condivise via db se disponibile
+let db = null;
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const min2 = t => { const [h,m] = t.split(":").map(Number); return h*60+m; };
+const hhmm = m => String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0");
+const iso = d => d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const GG = ["dom","lun","mar","mer","gio","ven","sab"];
+const dataLunga = s => new Date(s+"T12:00").toLocaleDateString("it-IT",{weekday:"long",day:"numeric",month:"long"});
+const iniziali = n => n.split(" ").map(x=>x[0]).join("").slice(0,2).toUpperCase();
+
+function occupato(barbiere, giorno, inizio, durata) {
+  return prenotazioni.some(p => p.giorno===giorno && p.barbiere===barbiere && p.stato!=="annullata" &&
+    inizio < min2(p.ora)+p.min && min2(p.ora) < inizio+durata);
+}
+function liberoPer(giorno, inizio, durata) {
+  const veri = TEAM.filter(t=>t.id!=="any");
+  return veri.find(t => !occupato(t.id, giorno, inizio, durata));
+}
+function slotDelGiorno(giornoIso) {
+  const d = new Date(giornoIso+"T12:00"), fasce = ORARI[d.getDay()] || [], dur = st.servizio.min, out = [];
+  const ora = new Date(); const oggi = iso(ora) === giornoIso; const adesso = ora.getHours()*60+ora.getMinutes();
+  for (const [a,b] of fasce) for (let m=min2(a); m+dur<=min2(b); m+=15) {
+    if (oggi && m <= adesso+30) continue;
+    const ok = st.barbiere==="any" ? !!liberoPer(giornoIso,m,dur) : !occupato(st.barbiere,giornoIso,m,dur);
+    out.push({ ora:hhmm(m), ok });
+  }
+  return out;
+}
+
+function render() {
+  const a = $("#app"), bar = $("#bar");
+  const head = `<header><div class="logo">G</div><div><h1>GAAP</h1><p>Prenota il tuo taglio</p></div>
+    <div class="tabs"><button class="${st.vista==='prenota'?'on':''}" data-v="prenota">Prenota</button><button class="${st.vista==='agenda'?'on':''}" data-v="agenda">Agenda</button></div></header>`;
+  if (st.vista==="agenda") { bar.hidden = true; a.innerHTML = head + agenda(); return bindTabs(); }
+  const steps = `<div class="steps">${[0,1,2,3].map(i=>`<i class="${i<=st.step?'on':''}"></i>`).join("")}</div>`;
+  let html = "";
+  if (st.step===0) {
+    html = `<h2>Scegli il servizio</h2><p class="sub">${esc(SALONE.indirizzo)}</p><div class="list">` +
+      SERVIZI.map(s=>`<button class="item ${st.servizio?.id===s.id?'sel':''}" data-s="${s.id}"><div class="t"><b>${esc(s.nome)}</b><small>${s.min} min${s.desc?' · '+esc(s.desc):''}</small></div><span class="price">${s.euro} €</span></button>`).join("") + `</div>`;
+  } else if (st.step===1) {
+    html = `<button class="back" data-back>← Servizi</button><h2>Con chi?</h2><p class="sub">Scegli il tuo barbiere</p><div class="list">` +
+      TEAM.map(t=>`<button class="item ${st.barbiere===t.id?'sel':''}" data-b="${t.id}"><div class="av">${t.id==='any'?'★':iniziali(t.nome)}</div><div class="t"><b>${esc(t.nome)}</b><small>${esc(t.ruolo)}</small></div></button>`).join("") + `</div>`;
+  } else if (st.step===2) {
+    const giorni = []; const d0 = new Date();
+    for (let i=0;i<21;i++){ const d=new Date(d0); d.setDate(d0.getDate()+i); giorni.push(d); }
+    if (!st.giorno) { const p = giorni.find(d=>(ORARI[d.getDay()]||[]).length && slotDelGiorno(iso(d)).some(s=>s.ok)); st.giorno = p ? iso(p) : null; }
+    const slots = st.giorno ? slotDelGiorno(st.giorno) : [];
+    html = `<button class="back" data-back>← Barbiere</button><h2>Quando?</h2><p class="sub">${st.giorno?esc(dataLunga(st.giorno)):''}</p><div class="days">` +
+      giorni.map(d=>{ const k=iso(d), chiuso=!(ORARI[d.getDay()]||[]).length; return `<button class="day ${st.giorno===k?'sel':''}" data-d="${k}" ${chiuso?'disabled':''}><small>${GG[d.getDay()]}</small><b>${d.getDate()}</b></button>`; }).join("") + `</div>` +
+      (slots.length ? `<div class="slots">${slots.map(s=>`<button class="slot ${st.ora===s.ora?'sel':''}" data-o="${s.ora}" ${s.ok?'':'disabled'}>${s.ora}</button>`).join("")}</div>` : `<p class="empty">Nessun orario libero in questo giorno</p>`);
+  } else if (st.step===3) {
+    const b = TEAM.find(t=>t.id===st.barbiere);
+    html = `<button class="back" data-back>← Orario</button><h2>I tuoi dati</h2><p class="sub">Ti servono solo per la conferma</p>
+      <label for="n">Nome e cognome</label><input id="n" autocomplete="name" value="${esc(st.nome)}">
+      <label for="t">Telefono</label><input id="t" type="tel" inputmode="tel" autocomplete="tel" value="${esc(st.tel)}">
+      <label for="no">Note (facoltative)</label><textarea id="no" rows="2">${esc(st.note)}</textarea>
+      <div class="sum"><div><span>Servizio</span><span>${esc(st.servizio.nome)}</span></div><div><span>Barbiere</span><span>${esc(b.nome)}</span></div><div><span>Quando</span><span>${esc(dataLunga(st.giorno))}, ${st.ora}</span></div><div><span>Durata</span><span>${st.servizio.min} min</span></div><div><span>Prezzo</span><span>${st.servizio.euro} € in salone</span></div></div>`;
+  } else if (st.step===4) {
+    const p = st.ultima;
+    html = `<div class="ok"><div class="tick">✓</div><h2>Prenotato!</h2><p class="sub">Ti aspettiamo ${esc(dataLunga(p.giorno))} alle ${p.ora}<br>con ${esc(TEAM.find(t=>t.id===p.barbiere).nome)}</p>
+      <div class="sum" style="text-align:left"><div><span>Servizio</span><span>${esc(p.servizio)}</span></div><div><span>Prezzo</span><span>${p.euro} € in salone</span></div><div><span>Dove</span><span>${esc(SALONE.indirizzo)}</span></div></div>
+      <p class="note">Se non puoi venire, avvisaci: il posto lo liberiamo per un altro cliente.</p>
+      <button class="btn ghost" style="margin-top:18px" data-new>Nuova prenotazione</button></div>`;
+  }
+  a.innerHTML = head + (st.step<4?steps:"") + html + `<p class="info">${esc(SALONE.sotto)}<br>${esc(SALONE.indirizzo)}<br>Mar–gio 8:45–13:15 · 14:15–19:15 · Ven–sab 8:45–19:15</p>`;
+  // barra in basso
+  const pronto = [!!st.servizio, !!st.barbiere, !!st.ora, st.nome.trim().length>1 && st.tel.replace(/\D/g,"").length>=8][st.step];
+  bar.hidden = st.step===4;
+  $("#tot").innerHTML = st.servizio ? `<b>${st.servizio.euro} €</b>${esc(st.servizio.nome)}` : "Nessun servizio scelto";
+  $("#next").textContent = st.step===3 ? "Conferma prenotazione" : "Continua";
+  $("#next").disabled = !pronto;
+  bindTabs();
+  a.querySelectorAll("[data-s]").forEach(e=>e.onclick=()=>{ st.servizio=SERVIZI.find(s=>s.id===e.dataset.s); st.ora=null; render(); });
+  a.querySelectorAll("[data-b]").forEach(e=>e.onclick=()=>{ st.barbiere=e.dataset.b; st.ora=null; st.giorno=null; render(); });
+  a.querySelectorAll("[data-d]").forEach(e=>e.onclick=()=>{ st.giorno=e.dataset.d; st.ora=null; render(); });
+  a.querySelectorAll("[data-o]").forEach(e=>e.onclick=()=>{ st.ora=e.dataset.o; render(); });
+  a.querySelectorAll("[data-back]").forEach(e=>e.onclick=()=>{ st.step--; render(); });
+  a.querySelectorAll("[data-new]").forEach(e=>e.onclick=()=>{ Object.assign(st,{step:0,servizio:null,barbiere:null,giorno:null,ora:null,note:""}); render(); });
+  const inp = (id,k)=>{ const el=$("#"+id); if(el) el.oninput=()=>{ st[k]=el.value; const ok=st.nome.trim().length>1 && st.tel.replace(/\D/g,"").length>=8; $("#next").disabled=!ok; }; };
+  inp("n","nome"); inp("t","tel"); inp("no","note");
+}
+function bindTabs(){ document.querySelectorAll("[data-v]").forEach(e=>e.onclick=()=>{ st.vista=e.dataset.v; render(); }); }
+
+function agenda() {
+  const oggi = iso(new Date());
+  const prossime = prenotazioni.filter(p=>p.giorno>=oggi && p.stato!=="annullata").sort((a,b)=>(a.giorno+a.ora).localeCompare(b.giorno+b.ora));
+  if (!prossime.length) return `<h2>Agenda del salone</h2><p class="sub">Le prenotazioni arrivate dall'app</p><p class="empty">Ancora nessuna prenotazione</p>`;
+  let out = `<h2>Agenda del salone</h2><p class="sub">${prossime.length} prenotazioni in arrivo</p>`, g="";
+  for (const p of prossime) {
+    if (p.giorno!==g) { g=p.giorno; out += `<div class="agday">${esc(dataLunga(g))}</div>`; }
+    out += `<div class="item"><div class="av">${p.ora}</div><div class="t"><b>${esc(p.nome)}</b><small>${esc(p.servizio)} · ${esc(TEAM.find(t=>t.id===p.barbiere)?.nome||"")} · ${esc(p.tel)}${p.note?' · '+esc(p.note):''}</small></div><span class="price">${p.euro} €</span></div>`;
+  }
+  return out;
+}
+
+$("#next").onclick = async () => {
+  if (st.step<3) { st.step++; return render(); }
+  const barbiere = st.barbiere==="any" ? liberoPer(st.giorno, min2(st.ora), st.servizio.min)?.id : st.barbiere;
+  if (!barbiere || occupato(barbiere, st.giorno, min2(st.ora), st.servizio.min)) { alertBox("Questo orario è appena stato preso, scegline un altro."); st.step=2; st.ora=null; return render(); }
+  const p = { id:"p"+Date.now().toString(36)+Math.random().toString(36).slice(2,6), giorno:st.giorno, ora:st.ora, min:st.servizio.min, servizio:st.servizio.nome, euro:st.servizio.euro, barbiere, nome:st.nome.trim(), tel:st.tel.trim(), note:st.note.trim(), stato:"confermata", creata:new Date().toISOString() };
+  $("#next").disabled = true;
+  try { if (db) await db.collection("prenotazioni").doc(p.id).set(p); } catch(e) {}
+  if (!prenotazioni.some(x=>x.id===p.id)) prenotazioni.push(p);
+  st.ultima = p; st.step = 4; render();
+};
+function alertBox(msg){ const d=document.createElement("div"); d.textContent=msg; d.style.cssText="position:fixed;left:50%;top:20px;transform:translateX(-50%);background:#2a2a2a;color:#fff;padding:12px 16px;border-radius:12px;z-index:9;max-width:90vw"; document.body.appendChild(d); setTimeout(()=>d.remove(),3500); }
+
+render();
+/* Prenotazioni condivise: se il salvataggio online è disponibile, le prenotazioni restano e gli orari presi spariscono per tutti */
+(async () => {
+  try {
+    if (!window.claude?.use) return;
+    db = await window.claude.use("db");
+    if (!db) return;
+    db.collection("prenotazioni").onSnapshot(snap => {
+      const arr = []; (snap.docs || snap).forEach(d => arr.push(typeof d.data==="function" ? d.data() : d));
+      const locali = prenotazioni.filter(p=>!arr.some(x=>x.id===p.id));
+      prenotazioni = arr.concat(locali); render();
+    });
+  } catch(e) { db = null; }
+})();
+</script>
+</body>
+</html>
