@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GAAP · Come vuoi il tuo assistente</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0b0b0b;color:#f2f2f2;font-family:-apple-system,"Inter",system-ui,sans-serif;line-height:1.45}
+.w{max-width:560px;margin:0 auto;padding:28px 18px 120px}
+.logo{width:54px;height:54px;border-radius:50%;border:1px solid #333;display:grid;place-items:center}
+.logo svg{width:60%}
+h1{font-size:30px;line-height:1.1;margin:22px 0 10px;font-weight:800}
+.lead{color:#cfcfcf;font-size:16px}
+.time{display:inline-block;margin-top:14px;font-size:13px;letter-spacing:.12em;font-weight:700;color:#0b0b0b;background:#fff;border-radius:20px;padding:5px 12px}
+.q{margin-top:30px}
+.q h2{font-size:18px;font-weight:700;margin-bottom:4px}
+.q p.s{color:#a9a9a9;font-size:14px;margin-bottom:12px}
+.n{color:#8a8a8a;font-size:12px;font-weight:700;letter-spacing:.15em;margin-bottom:6px}
+.opt{display:block;width:100%;text-align:left;background:#171717;border:1.5px solid #2a2a2a;color:#f2f2f2;border-radius:14px;padding:14px 16px;margin-top:8px;font-size:15.5px;cursor:pointer;font-family:inherit}
+.opt small{display:block;color:#a9a9a9;font-size:13.5px;margin-top:3px}
+.opt.on{border-color:#fff;background:#262626}
+.opt.on::after{content:"✓";float:right;font-weight:800}
+textarea{width:100%;margin-top:10px;background:#171717;border:1.5px solid #2a2a2a;border-radius:14px;color:#f2f2f2;padding:12px 14px;font-size:15px;font-family:inherit;min-height:74px}
+.bar{position:fixed;left:0;right:0;bottom:0;background:#0b0b0bee;border-top:1px solid #222;padding:12px 18px 18px}
+.bar .in{max-width:560px;margin:0 auto;display:flex;gap:12px;align-items:center}
+.cnt{flex:1;color:#a9a9a9;font-size:13px}
+.send{background:#25d366;color:#000;border:0;border-radius:24px;padding:13px 20px;font-weight:800;font-size:15px;cursor:pointer}
+.end{margin-top:36px;color:#a9a9a9;font-size:14px}
+</style></head><body><div class="w">
+<div class="logo"><svg viewBox="0 0 100 100"><polygon fill="#fff" points="14,50 42,18 86,18 86,32 49,32 32,50 49,68 70,68 70,58 56,58 56,46 86,46 86,82 42,82"/></svg></div>
+<h1>Giovanni, come vuoi il tuo assistente?</h1>
+<p class="lead">Poche domande per farlo ragionare come te. Tocca la risposta che preferisci: se non sai, salta pure. Alla fine premi "Invia su WhatsApp" e le risposte arrivano a Graziano.</p>
+<span class="time">3 MINUTI</span>
+<div id="qs"></div>
+<p class="end">Grazie! Il resto lo vediamo insieme in salone ✂️</p>
+</div>
+<div class="bar"><div class="in"><div class="cnt" id="cnt">0 risposte</div><button class="send" id="send">Invia su WhatsApp</button></div></div>
+<script>
+const Q=[
+{id:"ragazzi",t:"I clienti che scrivono a Pio, Valerio, Antonello e Nunzio",s:"Oggi molti prenotano scrivendo direttamente ai ragazzi. Come lo risolviamo?",o:[
+["Risposta automatica con link a GAAP","Sul numero dei ragazzi parte un messaggio: \"per prenotare scrivi qui\". Gratis."],
+["Un numero di lavoro per ogni ragazzo","Una seconda SIM per il lavoro, collegata all'assistente: il cliente scrive al ragazzo e l'assistente prenota."],
+["Tutti sul numero di GAAP","QR in salone e link su Instagram, i ragazzi rimandano tutti a GAAP."],
+["Non so, decidiamo insieme",""]],note:true},
+{id:"buchi",t:"I buchi da un quarto d'ora",s:"Quando tra un cliente e l'altro restano 15 minuti vuoti:",o:[
+["L'assistente sposta e avvisa da solo","Sposta di 15 minuti gli appuntamenti vicini e manda un WhatsApp ai clienti."],
+["Prima chiede l'ok a me","Ti propone lo spostamento e aspetta un tuo sì."],
+["Non spostare mai nessuno","Propone solo orari attaccati a quelli già presi."]]},
+{id:"promemoria",t:"Il promemoria al cliente",o:[["Il giorno prima",""],["2 ore prima",""],["Tutti e due",""],["Nessun promemoria",""]]},
+{id:"anticipo",t:"Fino a quanto in anticipo si può prenotare?",o:[["Fino a 7 giorni",""],["Fino a 14 giorni",""],["Fino a 30 giorni",""],["Anche il giorno stesso, fino a 1 ora prima",""]],multi:true},
+{id:"ritardo",t:"Se un cliente è in ritardo",o:[["Dopo 10 minuti perde il posto",""],["Dopo 15 minuti perde il posto",""],["Decido io caso per caso","L'assistente ti avvisa e aspetta."]]},
+{id:"disdetta",t:"Fino a quando si può disdire?",o:[["Fino a 2 ore prima",""],["Fino al giorno prima",""],["Sempre, basta che avvisi",""]]},
+{id:"avvisi",t:"Chi riceve gli avvisi dei casi strani?",s:"Reclami, richieste particolari, domande a cui l'assistente non sa rispondere.",o:[["Solo io",""],["Io e il barbiere interessato",""]]},
+{id:"tono",t:"Come deve scrivere l'assistente?",o:[["Dà del tu, con qualche faccina",""],["Dà del tu, niente faccine",""],["Dà del lei, formale",""]]},
+{id:"faq",t:"A quali domande deve saper rispondere?",s:"Tocca quelle che ti fanno spesso e scrivi sotto la risposta giusta.",o:[["Si può venire con il cane?",""],["Dove si parcheggia?",""],["Si paga con la carta?",""],["Vendete prodotti?",""],["Fate buoni regalo?",""]],multi:true,note:true,ph:"Es: cani sì se piccoli · si paga anche con carta · buoni regalo da 20 e 50 €"},
+{id:"noWA",t:"Servizi da NON far prenotare su WhatsApp",s:"Per esempio quelli lunghi o da concordare a voce. Se non ce ne sono, salta.",free:true,ph:"Es: colore, trattamenti"},
+{id:"altro",t:"Qualcosa che l'assistente deve sapere di te o del salone?",free:true,ph:"Clienti fissi, abitudini, cose da non fare mai..."}
+];
+const A={};const $=s=>document.querySelector(s);
+const root=$("#qs");
+Q.forEach((q,i)=>{const d=document.createElement("div");d.className="q";
+d.innerHTML=`<div class="n">${i+1} / ${Q.length}</div><h2>${q.t}</h2>${q.s?`<p class="s">${q.s}</p>`:""}`+
+(q.o||[]).map((o,j)=>`<button class="opt" data-q="${q.id}" data-j="${j}">${o[0]}${o[1]?`<small>${o[1]}</small>`:""}</button>`).join("")+
+((q.note||q.free)?`<textarea data-t="${q.id}" placeholder="${q.ph||"Scrivi qui se vuoi aggiungere qualcosa"}"></textarea>`:"");
+root.appendChild(d);});
+root.addEventListener("click",e=>{const b=e.target.closest(".opt");if(!b)return;const q=Q.find(x=>x.id===b.dataset.q),j=+b.dataset.j;
+A[q.id]=A[q.id]||[];if(q.multi){const k=A[q.id].indexOf(j);k<0?A[q.id].push(j):A[q.id].splice(k,1);}else A[q.id]=A[q.id][0]===j?[]:[j];
+document.querySelectorAll(`.opt[data-q="${q.id}"]`).forEach(x=>x.classList.toggle("on",A[q.id].includes(+x.dataset.j)));count();});
+document.addEventListener("input",count);
+function testo(id){const t=document.querySelector(`textarea[data-t="${id}"]`);return t?t.value.trim():"";}
+function count(){const n=Q.filter(q=>(A[q.id]&&A[q.id].length)||testo(q.id)).length;$("#cnt").textContent=n+" risposte su "+Q.length;}
+$("#send").onclick=()=>{let m="Risposte di Giovanni per l'assistente GAAP\n";
+Q.forEach((q,i)=>{const sc=(A[q.id]||[]).map(j=>q.o[j][0]).join(", "),tx=testo(q.id);if(!sc&&!tx)return;
+m+=`\n${i+1}. ${q.t}\n`+(sc?`→ ${sc}\n`:"")+(tx?`✎ ${tx}\n`:"");});
+location.href="https://wa.me/?text="+encodeURIComponent(m);};
+count();
+</script></body></html>
