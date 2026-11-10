@@ -2,131 +2,211 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>GAAP · Assistente (demo)</title>
-<meta name="theme-color" content="#0B0B0B">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
+<title>GAAP · Assistente WhatsApp (demo)</title>
+<meta name="theme-color" content="#008069">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{--nero:#0B0B0B;--bianco:#F5F5F2;--grigio:#9B9B96;--linea:#2A2A2A;--verde:#25D366;--wa-bg:#ECE5DD;--wa-out:#DCF8C6}
-html,body{height:100%}
-body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;background:var(--nero);color:var(--bianco);display:flex;justify-content:center}
-.app{width:100%;max-width:480px;height:100dvh;display:flex;flex-direction:column;background:var(--nero)}
-header{padding:14px 16px 10px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--linea)}
-.logo{width:40px;height:40px;border-radius:50%;background:var(--bianco);color:var(--nero);display:grid;place-items:center;font-weight:800;font-size:20px;letter-spacing:-1px}
-header h1{font-size:16px;font-weight:700}
-header p{font-size:12px;color:var(--grigio)}
-.demo{margin-left:auto;font-size:10px;letter-spacing:.12em;border:1px solid var(--grigio);color:var(--grigio);padding:3px 7px;border-radius:20px}
-nav{display:flex;border-bottom:1px solid var(--linea)}
-nav button{flex:1;background:none;border:0;color:var(--grigio);font:600 13px/1 inherit;padding:12px 0;letter-spacing:.04em}
-nav button.on{color:var(--bianco);box-shadow:inset 0 -2px 0 var(--bianco)}
-section{flex:1;display:none;min-height:0}
-section.on{display:flex;flex-direction:column}
-/* Chat WhatsApp */
-#chat .barra{background:#075E54;color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px}
-#chat .barra .logo{width:34px;height:34px;font-size:16px}
-#chat .barra b{font-size:15px;display:block}
-#chat .barra small{font-size:11.5px;opacity:.8}
-#msgs{flex:1;overflow-y:auto;background:var(--wa-bg);padding:12px 10px 16px;display:flex;flex-direction:column;gap:6px}
-.m{max-width:82%;padding:7px 10px 18px;border-radius:9px;font-size:15px;line-height:1.35;color:#111;position:relative;white-space:pre-line;word-wrap:break-word}
-.m .t{position:absolute;right:8px;bottom:3px;font-size:10.5px;color:#667}
-.in{background:#fff;align-self:flex-start;border-top-left-radius:2px}
-.out{background:var(--wa-out);align-self:flex-end;border-top-right-radius:2px}
-.out .t::after{content:" ✓✓";color:#34B7F1}
-.vocale{font-style:italic;color:#555}
-.vocale::before{content:"Vocale trascritto · ";font-style:normal;font-weight:600;color:#075E54}
-.card{background:#fff;border-radius:10px;align-self:flex-start;max-width:85%;overflow:hidden;color:#111;font-size:14px}
-.card h4{background:var(--nero);color:var(--bianco);font-size:12px;letter-spacing:.1em;padding:8px 12px}
-.card div{padding:10px 12px;line-height:1.55}
-.sys{align-self:center;background:#FFF3C4;color:#5a4a00;font-size:12px;padding:5px 10px;border-radius:7px;text-align:center;max-width:90%}
-.typing{align-self:flex-start;background:#fff;border-radius:9px;padding:9px 12px;color:#888;font-size:13px}
-.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:8px 10px;background:#F0F0F0;border-top:1px solid #ddd}
+:root{--verde:#008069;--verde2:#00A884;--sfondo:#EFEAE2;--out:#D9FDD3;--testo:#111B21;--sec:#667781}
+html,body{height:100%;background:#d1d7db}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Roboto,Arial,sans-serif;color:var(--testo);display:flex;justify-content:center}
+.app{width:100%;max-width:480px;height:100dvh;position:relative;overflow:hidden;background:var(--sfondo)}
+.pagina{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--sfondo);transition:transform .25s ease}
+.pagina.sotto{transform:translateX(100%)}
+#pChat{z-index:1}#chiamata,#pAgenda,#pCassa{z-index:5}
+/* Barra in alto come WhatsApp */
+.top{background:var(--verde);color:#fff;display:flex;align-items:center;gap:6px;padding:calc(8px + env(safe-area-inset-top)) 6px 8px 4px;min-height:58px;position:relative;z-index:3}
+.top .indietro{background:none;border:0;padding:6px;display:grid;place-items:center}
+.top svg{width:24px;height:24px;fill:#fff}
+.avatar{width:38px;height:38px;border-radius:50%;background:#0B0B0B;color:#F5F5F2;display:grid;place-items:center;font-weight:800;font-size:18px;flex:none}
+.chi{flex:1;min-width:0;line-height:1.2}
+.chi b{font-size:16.5px;font-weight:600;display:block}
+.chi small{font-size:12.5px;opacity:.85}
+.ico{background:none;border:0;width:40px;height:40px;display:grid;place-items:center;border-radius:50%}
+.ico:active{background:rgba(255,255,255,.15)}
+.menu{position:absolute;right:8px;top:calc(52px + env(safe-area-inset-top));background:#fff;border-radius:8px;box-shadow:0 4px 18px rgba(0,0,0,.25);display:none;z-index:9;min-width:220px;overflow:hidden}
+.menu.on{display:block}
+.menu button{display:block;width:100%;text-align:left;background:none;border:0;padding:14px 18px;font:15px inherit;color:var(--testo)}
+.menu button:active{background:#f0f2f5}
+/* Chat */
+#msgs{flex:1;overflow-y:auto;padding:10px 4.5% 14px;display:flex;flex-direction:column;gap:3px;
+background-color:var(--sfondo);
+background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23d6cfc4' stroke-width='1.4'%3E%3Ccircle cx='18' cy='20' r='7'/%3E%3Cpath d='M70 12l8 8-8 8-8-8z'/%3E%3Cpath d='M100 60c6 0 10 4 10 10'/%3E%3Crect x='20' y='70' width='14' height='10' rx='3'/%3E%3Cpath d='M60 90l6 10h-12z'/%3E%3Ccircle cx='96' cy='104' r='4'/%3E%3Cpath d='M40 40q8-8 16 0'/%3E%3C/g%3E%3C/svg%3E")}
+.data{align-self:center;background:#fff;color:var(--sec);font-size:12.5px;padding:5px 12px;border-radius:8px;margin:6px 0;box-shadow:0 1px .5px rgba(11,20,26,.13)}
+.cifr{align-self:center;background:#FFEECD;color:#54656F;font-size:12.5px;line-height:1.4;padding:6px 12px;border-radius:8px;text-align:center;margin:4px 0 8px;max-width:88%}
+.m{max-width:80%;padding:6px 9px 8px;border-radius:8px;font-size:15.2px;line-height:1.36;position:relative;white-space:pre-line;word-wrap:break-word;box-shadow:0 1px .5px rgba(11,20,26,.13);margin-top:3px}
+.m .t{float:right;margin:6px 0 -4px 10px;font-size:11px;color:var(--sec);white-space:nowrap}
+.in{background:#fff;align-self:flex-start;border-top-left-radius:0}
+.out{background:var(--out);align-self:flex-end;border-top-right-radius:0}
+.out .t::after{content:"";display:inline-block;width:16px;height:11px;margin-left:3px;vertical-align:-1px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 11'%3E%3Cpath fill='%2353bdeb' d='M11.07.65l-6.6 8.1L1.5 5.9.4 7.1l4.1 3.6L12.2 1.6zM15.6.65l-6.6 8.1-.9-.8-1 1.3 2 1.8L16.7 1.6z'/%3E%3C/svg%3E") no-repeat}
+.voc{display:flex;align-items:center;gap:8px;min-width:200px}
+.voc .play{width:0;height:0;border-left:11px solid #54656F;border-top:7px solid transparent;border-bottom:7px solid transparent}
+.voc .onda{flex:1;height:18px;background:repeating-linear-gradient(90deg,#8696a0 0 2px,transparent 2px 5px);mask:linear-gradient(90deg,#000 0 100%);opacity:.7;border-radius:2px}
+.trascr{display:block;font-size:13px;color:var(--sec);margin-top:4px;font-style:italic}
+.card{align-self:flex-start;background:#fff;border-radius:8px;overflow:hidden;max-width:80%;box-shadow:0 1px .5px rgba(11,20,26,.13);margin-top:3px}
+.card h4{background:#0B0B0B;color:#F5F5F2;font-size:11.5px;letter-spacing:.12em;padding:8px 12px}
+.card div{padding:9px 12px;font-size:14.5px;line-height:1.5;white-space:pre-line}
+.typing{align-self:flex-start;background:#fff;border-radius:8px;padding:10px 14px;box-shadow:0 1px .5px rgba(11,20,26,.13);margin-top:3px}
+.typing i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#8696a0;margin:0 2px;animation:b 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+@keyframes b{0%,60%,100%{opacity:.3}30%{opacity:1}}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:6px 8px 2px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
-.chips button{flex:none;border:1px solid #c9c9c9;background:#fff;color:#111;border-radius:16px;padding:6px 11px;font:13px inherit}
-.scrivi{display:flex;gap:8px;padding:8px;background:#F0F0F0;align-items:center;padding-bottom:max(8px,env(safe-area-inset-bottom))}
-.scrivi input{flex:1;border:0;border-radius:22px;padding:11px 15px;font:16px inherit;color:#111;background:#fff;outline:none}
-.tondo{width:44px;height:44px;border-radius:50%;border:0;background:#075E54;color:#fff;display:grid;place-items:center;flex:none}
-.tondo svg{width:20px;height:20px;fill:#fff}
-.tondo.rec{background:#E53935;animation:pul 1s infinite}
-@keyframes pul{50%{transform:scale(1.08)}}
+.chips button{flex:none;border:0;background:#fff;color:var(--verde);border-radius:16px;padding:7px 12px;font:600 13.5px inherit;box-shadow:0 1px .5px rgba(11,20,26,.15)}
+.barra{display:flex;align-items:flex-end;gap:6px;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+.campo{flex:1;background:#fff;border-radius:24px;display:flex;align-items:center;padding:0 6px 0 12px;min-height:46px;box-shadow:0 1px .5px rgba(11,20,26,.13)}
+.campo svg{width:24px;height:24px;fill:#8696a0;flex:none}
+.campo input{flex:1;border:0;outline:none;font:16px inherit;padding:10px 8px;background:none;color:var(--testo);min-width:0}
+.tondo{width:46px;height:46px;border-radius:50%;border:0;background:var(--verde2);display:grid;place-items:center;flex:none}
+.tondo svg{width:22px;height:22px;fill:#fff}
+.tondo.rec{background:#e53935;animation:p 1s infinite}
+@keyframes p{50%{transform:scale(1.1)}}
 /* Chiamata */
-#tel{align-items:center;justify-content:space-between;padding:40px 24px calc(30px + env(safe-area-inset-bottom));background:radial-gradient(circle at 50% 30%,#1c1c1c,#0B0B0B 70%)}
-#tel .chi{text-align:center}
-#tel .chi .logo{width:96px;height:96px;font-size:44px;margin:0 auto 16px}
-#tel h2{font-size:26px}
-#tel .stato{color:var(--grigio);margin-top:6px;font-size:15px}
-#sottotitolo{min-height:120px;width:100%;text-align:center;font-size:17px;line-height:1.45;padding:0 6px}
-#sottotitolo .tu{color:var(--grigio);font-size:15px;display:block;margin-top:10px}
-.tasti{display:flex;gap:40px}
-.tasti button{width:72px;height:72px;border-radius:50%;border:0;display:grid;place-items:center}
-.tasti svg{width:30px;height:30px;fill:#fff}
-.verde{background:#2ECC71}.rosso{background:#E53935}
-#telTesto{display:none;width:100%;gap:8px}
-#telTesto input{flex:1;border:1px solid var(--linea);background:#151515;color:var(--bianco);border-radius:22px;padding:11px 15px;font:16px inherit}
-/* Agenda */
-#agenda{overflow-y:auto;padding:14px 14px 30px}
-#agenda .giorno{display:flex;gap:8px;align-items:center;margin-bottom:12px}
-#agenda .giorno button{background:#1a1a1a;border:1px solid var(--linea);color:var(--bianco);border-radius:8px;width:36px;height:36px;font-size:18px}
-#agenda .giorno b{flex:1;text-align:center;font-size:16px;text-transform:capitalize}
-.colonne{display:grid;grid-template-columns:42px repeat(5,1fr);gap:3px;font-size:11px}
-.colonne .h{color:var(--grigio);text-align:center;padding-bottom:6px;font-weight:600}
-.ora{color:var(--grigio);font-size:10px;text-align:right;padding-right:4px}
-.slot{height:14px;border-radius:3px;background:#141414}
-.slot.occ{opacity:.45}
-.slot.mio{opacity:1;outline:2px solid #fff}
-.leg{margin-top:14px;font-size:12px;color:var(--grigio);line-height:1.6}
-.avvisi{margin-top:16px;border:1px solid var(--linea);border-radius:10px;padding:12px;font-size:13px;line-height:1.5}
-.avvisi h3{font-size:12px;letter-spacing:.1em;color:var(--grigio);margin-bottom:6px}
-.vuoto{color:var(--grigio)}
+#chiamata{background:linear-gradient(180deg,#0b3b34 0%,#0b141a 70%);color:#fff;align-items:center;justify-content:space-between;padding:calc(30px + env(safe-area-inset-top)) 20px calc(26px + env(safe-area-inset-bottom))}
+#chiamata .lucchetto{font-size:12.5px;opacity:.7;display:flex;gap:6px;align-items:center}
+#chiamata .avatar{width:110px;height:110px;font-size:50px;margin:26px auto 14px;box-shadow:0 0 0 0 rgba(0,168,132,.5)}
+#chiamata .avatar.parla{animation:onda 1.2s infinite}
+@keyframes onda{0%{box-shadow:0 0 0 0 rgba(0,168,132,.55)}100%{box-shadow:0 0 0 26px rgba(0,168,132,0)}}
+#chiamata h2{font-size:27px;font-weight:500;text-align:center}
+#cStato{text-align:center;opacity:.8;margin-top:6px;font-size:15px}
+#cTesti{width:100%;flex:1;overflow-y:auto;margin:16px 0;display:flex;flex-direction:column;gap:8px;justify-content:flex-end}
+#cTesti p{font-size:15.5px;line-height:1.4;padding:9px 12px;border-radius:12px;max-width:88%}
+#cTesti .a{background:rgba(255,255,255,.1);align-self:flex-start}
+#cTesti .u{background:rgba(0,168,132,.35);align-self:flex-end}
+#cChips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:14px;min-height:10px}
+#cChips button{border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.08);color:#fff;border-radius:16px;padding:7px 12px;font:13.5px inherit}
+.ctasti{display:flex;align-items:center;justify-content:center;gap:34px;width:100%}
+.ctasti button{width:64px;height:64px;border-radius:50%;border:0;display:grid;place-items:center;background:rgba(255,255,255,.15)}
+.ctasti svg{width:28px;height:28px;fill:#fff}
+.ctasti .rosso{background:#e53935}
+.ctasti .mic.rec{background:#00A884;animation:p 1s infinite}
+.etich{font-size:12px;opacity:.75;text-align:center;margin-top:6px}
+/* Pagine Agenda e Cassa */
+.contenuto{flex:1;overflow-y:auto;background:#fff;padding:14px 14px 30px}
+.giorno{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+.giorno button{background:#f0f2f5;border:0;border-radius:8px;width:38px;height:38px;font-size:20px;color:var(--testo)}
+.giorno b{flex:1;text-align:center;font-size:16px}
+.griglia{display:grid;grid-template-columns:40px repeat(5,1fr);gap:3px;font-size:11px}
+.griglia .h{text-align:center;padding-bottom:6px;font-weight:700;color:var(--testo)}
+.griglia .h i{display:block;width:10px;height:10px;border-radius:50%;margin:0 auto 3px}
+.ora{color:var(--sec);font-size:10px;text-align:right;padding-right:4px}
+.slot{height:14px;border-radius:3px;background:#f3f4f6}
+.slot.occ{opacity:.4}
+.slot.mio{outline:2px solid #111;opacity:1}
+.nota{font-size:12.5px;color:var(--sec);line-height:1.5;margin-top:12px}
+.box{border:1px solid #e9edef;border-radius:12px;padding:12px;margin-top:14px}
+.box h3{font-size:12px;letter-spacing:.1em;color:var(--sec);margin-bottom:8px}
+.tot{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.tot div{background:#f0f2f5;border-radius:10px;padding:10px;text-align:center}
+.tot b{display:block;font-size:20px}
+.tot span{font-size:12px;color:var(--sec)}
+.tot .grande{grid-column:1/-1;background:#0B0B0B;color:#F5F5F2}
+.tot .grande span{color:#c9c9c4}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+td,th{padding:7px 4px;border-bottom:1px solid #f0f2f5;text-align:left}
+th{font-size:11.5px;color:var(--sec);font-weight:600}
+td.n,th.n{text-align:right}
+.pallino{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+.staff{display:flex;gap:6px;margin-top:10px}
+.staff input{flex:1;border:1px solid #d1d7db;border-radius:22px;padding:10px 14px;font:15px inherit;min-width:0}
+.risp{font-size:13.5px;color:var(--verde);margin-top:8px;min-height:18px}
+.resoconto{background:var(--sfondo);border-radius:10px;padding:10px}
+.resoconto .m{max-width:100%}
+.vuoto{color:var(--sec);font-size:13.5px}
 </style>
 </head>
 <body>
 <div class="app">
-  <header>
-    <div class="logo">G</div>
-    <div><h1>Assistente GAAP</h1><p>Prova come risponde ai tuoi clienti</p></div>
-    <span class="demo">DEMO</span>
-  </header>
-  <nav>
-    <button class="on" data-s="chat">WhatsApp</button>
-    <button data-s="tel">Chiamata</button>
-    <button data-s="agenda">Agenda</button>
-  </nav>
 
-  <section id="chat" class="on">
-    <div class="barra"><div class="logo">G</div><div><b>GAAP</b><small>online</small></div></div>
-    <div id="msgs"></div>
-    <div class="chips" id="chips"></div>
-    <div class="scrivi">
-      <input id="inp" placeholder="Scrivi come un cliente…" autocomplete="off" enterkeyhint="send">
-      <button class="tondo" id="mic" aria-label="Messaggio vocale"><svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V22h2v-3.08A7 7 0 0 0 19 12h-2z"/></svg></button>
-      <button class="tondo" id="invia" aria-label="Invia" style="display:none"><svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg></button>
+<!-- CHAT -->
+<div class="pagina" id="pChat">
+  <div class="top">
+    <button class="indietro" aria-label="Indietro"><svg viewBox="0 0 24 24"><path d="M20 11H7.8l5.6-5.6L12 4l-8 8 8 8 1.4-1.4L7.8 13H20z"/></svg></button>
+    <div class="avatar">G</div>
+    <div class="chi"><b>GAAP</b><small id="stato">online</small></div>
+    <button class="ico" aria-label="Videochiamata"><svg viewBox="0 0 24 24"><path d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11z"/></svg></button>
+    <button class="ico" id="btnChiama" aria-label="Chiamata vocale"><svg viewBox="0 0 24 24"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.6a1 1 0 0 1-.25 1z"/></svg></button>
+    <button class="ico" id="btnMenu" aria-label="Menu"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></button>
+    <div class="menu" id="menu">
+      <button data-p="pAgenda">Agenda dei barbieri</button>
+      <button data-p="pCassa">Cassa di oggi</button>
+      <button id="ricomincia">Ricomincia la prova</button>
     </div>
-  </section>
-
-  <section id="tel">
-    <div class="chi"><div class="logo">G</div><h2>GAAP</h2><div class="stato" id="telStato">Chiama come farebbe un cliente</div></div>
-    <div id="sottotitolo"></div>
-    <div id="telTesto"><input id="telInp" placeholder="Rispondi qui…"><button class="tondo" id="telInvia"><svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg></button></div>
-    <div class="tasti">
-      <button class="verde" id="chiama" aria-label="Chiama"><svg viewBox="0 0 24 24"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.6a1 1 0 0 1-.25 1z"/></svg></button>
-      <button class="rosso" id="chiudi" aria-label="Chiudi" style="display:none"><svg viewBox="0 0 24 24"><path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1a1 1 0 0 1-.56.9 11.5 11.5 0 0 0-2.66 1.85 1 1 0 0 1-1.41 0L.3 13.08a1 1 0 0 1 0-1.41A16.9 16.9 0 0 1 12 7c4.5 0 8.6 1.76 11.7 4.67a1 1 0 0 1 0 1.41l-2.48 2.49a1 1 0 0 1-1.41 0 11.3 11.3 0 0 0-2.66-1.85 1 1 0 0 1-.56-.9v-3.1A15 15 0 0 0 12 9z"/></svg></button>
+  </div>
+  <div id="msgs"></div>
+  <div class="chips" id="chips"></div>
+  <div class="barra">
+    <div class="campo">
+      <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-3.5 7a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm7 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zM12 18a6 6 0 0 1-5.3-3.2h10.6A6 6 0 0 1 12 18z"/></svg>
+      <input id="inp" placeholder="Messaggio" autocomplete="off" enterkeyhint="send">
+      <svg viewBox="0 0 24 24"><path d="M16.5 6.5v10a4.5 4.5 0 0 1-9 0V5a3 3 0 0 1 6 0v10.5a1.5 1.5 0 0 1-3 0V6.5H9v9a3 3 0 0 0 6 0V5a4.5 4.5 0 0 0-9 0v11.5a6 6 0 0 0 12 0v-10z"/></svg>
+      <svg viewBox="0 0 24 24" style="margin-left:8px"><path d="M12 8.8a3.2 3.2 0 1 0 0 6.4 3.2 3.2 0 0 0 0-6.4zM9 3 7.2 5H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3.2L15 3z"/></svg>
     </div>
-  </section>
-
-  <section id="agenda">
-    <div class="giorno"><button id="prec">‹</button><b id="agTitolo"></b><button id="succ">›</button></div>
-    <div class="colonne" id="griglia"></div>
-    <div class="leg">Quello che vedono Giovanni e i ragazzi sul calendario del telefono, ognuno col suo colore. Gli appuntamenti presi nella prova hanno il bordo bianco. Gli altri sono di esempio.</div>
-    <div class="avvisi"><h3>AVVISI A GIOVANNI</h3><div id="avvisi"><span class="vuoto">Nessun avviso. Arrivano qui i casi strani, come ritardi o richieste particolari.</span></div></div>
-  </section>
+    <button class="tondo" id="mic" aria-label="Vocale"><svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V22h2v-3.08A7 7 0 0 0 19 12h-2z"/></svg></button>
+    <button class="tondo" id="invia" aria-label="Invia" style="display:none"><svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg></button>
+  </div>
 </div>
 
+<!-- CHIAMATA -->
+<div class="pagina sotto" id="chiamata">
+  <div style="text-align:center;width:100%">
+    <div class="lucchetto" style="justify-content:center">Chiamata vocale · risponde l'assistente</div>
+    <div class="avatar" id="cAvatar">G</div>
+    <h2>GAAP</h2>
+    <div id="cStato">Squilla…</div>
+  </div>
+  <div id="cTesti"></div>
+  <div id="cChips"></div>
+  <div style="width:100%">
+    <div class="ctasti">
+      <div><button id="cAlto" aria-label="Altoparlante"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg></button><div class="etich">Altoparlante</div></div>
+      <div><button class="mic" id="cMic" aria-label="Parla"><svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V22h2v-3.08A7 7 0 0 0 19 12h-2z"/></svg></button><div class="etich" id="cMicEt">Tocca e parla</div></div>
+      <div><button class="rosso" id="cChiudi" aria-label="Chiudi"><svg viewBox="0 0 24 24"><path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1a1 1 0 0 1-.56.9 11.5 11.5 0 0 0-2.66 1.85 1 1 0 0 1-1.41 0L.3 13.08a1 1 0 0 1 0-1.41A16.9 16.9 0 0 1 12 7c4.5 0 8.6 1.76 11.7 4.67a1 1 0 0 1 0 1.41l-2.48 2.49a1 1 0 0 1-1.41 0 11.3 11.3 0 0 0-2.66-1.85 1 1 0 0 1-.56-.9v-3.1A15 15 0 0 0 12 9z"/></svg></button><div class="etich">Chiudi</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- AGENDA -->
+<div class="pagina sotto" id="pAgenda">
+  <div class="top">
+    <button class="indietro chiudiPag" aria-label="Indietro"><svg viewBox="0 0 24 24"><path d="M20 11H7.8l5.6-5.6L12 4l-8 8 8 8 1.4-1.4L7.8 13H20z"/></svg></button>
+    <div class="chi"><b>Agenda dei barbieri</b><small>Quello che vedono sul telefono</small></div>
+  </div>
+  <div class="contenuto">
+    <div class="giorno"><button id="prec">‹</button><b id="agTitolo"></b><button id="succ">›</button></div>
+    <div class="griglia" id="griglia"></div>
+    <div class="nota">Ognuno vede il suo calendario sul telefono, con il suo colore. Gli appuntamenti presi nella prova hanno il bordo nero, gli altri sono di esempio. Orari di prova.</div>
+    <div class="box"><h3>AVVISI A GIOVANNI E AL BARBIERE</h3><div id="avvisi"><span class="vuoto">Qui arrivano i casi strani: ritardi, disdette, domande a cui l'assistente non sa rispondere.</span></div></div>
+  </div>
+</div>
+
+<!-- CASSA -->
+<div class="pagina sotto" id="pCassa">
+  <div class="top">
+    <button class="indietro chiudiPag" aria-label="Indietro"><svg viewBox="0 0 24 24"><path d="M20 11H7.8l5.6-5.6L12 4l-8 8 8 8 1.4-1.4L7.8 13H20z"/></svg></button>
+    <div class="chi"><b>Cassa di oggi</b><small>Giornata di esempio</small></div>
+  </div>
+  <div class="contenuto">
+    <div class="tot" id="totali"></div>
+    <div class="box"><h3>PROVA COME UN BARBIERE</h3>
+      <div class="vuoto">I ragazzi scrivono all'assistente dopo ogni cliente, per esempio "Pio pagato 25 carta".</div>
+      <div class="staff"><input id="sInp" placeholder="Pio pagato 25 carta" enterkeyhint="send"><button class="tondo" id="sInvia"><svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg></button></div>
+      <div class="risp" id="sRisp"></div>
+    </div>
+    <div class="box"><h3>PER BARBIERE</h3><table id="perB"></table></div>
+    <div class="box"><h3>RESOCONTO DELLE 20:30 A GIOVANNI</h3><div class="resoconto"><div class="m in" id="resoconto"></div></div></div>
+    <div class="box"><h3>TUTTI I PAGAMENTI</h3><table id="lista"></table></div>
+    <div class="nota">Prezzi e clienti di esempio: nella versione vera ci sono i prezzi di GAAP e i pagamenti scritti dai ragazzi.</div>
+  </div>
+</div>
+
+</div>
 <script>
 // ===================== DATI DEL SALONE =====================
 // Orari e durate sono di prova: quelli veri arrivano da Giovanni.
 const SALONE = {
   barbieri: [
-    {id:'giovanni', nome:'Giovanni', col:'#E8E8E3'},
+    {id:'giovanni', nome:'Giovanni', col:'#3A3A3A'},
     {id:'pio', nome:'Pio', col:'#4F8DF7'},
     {id:'valerio', nome:'Valerio', col:'#3DBE6B'},
     {id:'antonello', nome:'Antonello', col:'#F2A33A'},
@@ -357,155 +437,212 @@ function prenota(out){
   S.prenotazioni.push({d,t:x.t,b:x.b,servId:S.serv,servNome:sv.nome,nome:S.nome,slot});
   out.push({card:true, titolo:S.spostando?'APPUNTAMENTO SPOSTATO':'APPUNTAMENTO CONFERMATO', testo:`${S.nome}\n${sv.nome[0].toUpperCase()+sv.nome.slice(1)} con ${nomeB(x.b)}\n${nomeData(d)[0].toUpperCase()+nomeData(d).slice(1)} alle ${hhmm(x.t)}\nGAAP · Santeramo in Colle`});
   out.push(`Fatto, ti aspettiamo. Ti mando un promemoria il giorno prima e due ore prima. Se non riesci a venire scrivimi pure, si può disdire sempre.`);
-  out.push({sys:`${nomeB(x.b)} e Giovanni lo vedono già sul calendario del telefono.`});
+  out.push({sys:x.b==='giovanni'?'Giovanni lo vede già sul calendario del telefono.':`${nomeB(x.b)} e Giovanni lo vedono già sul calendario del telefono.`});
   avvisoAgenda(d);
   const nome=S.nome; reset(); S.nome=nome; S.chiestoBarbiere=false; S.spostando=null;
   return out;
 }
 
+
+
 // ===================== CHAT =====================
 const msgs=document.getElementById('msgs'), inp=document.getElementById('inp');
 const ora=()=>{const d=new Date();return hhmm(d.getHours()*60+d.getMinutes());};
 function bolla(testo,chi,vocale){
-  const e=document.createElement('div'); e.className='m '+chi+(vocale?' vocale':'');
-  e.textContent=testo; const t=document.createElement('span'); t.className='t'; t.textContent=ora(); e.appendChild(t);
+  const e=document.createElement('div'); e.className='m '+chi;
+  if(vocale){ e.innerHTML='<div class="voc"><span class="play"></span><span class="onda"></span></div><span class="trascr"></span>'; e.querySelector('.trascr').textContent='“'+testo+'”'; }
+  else e.textContent=testo;
+  const t=document.createElement('span'); t.className='t'; t.textContent=ora(); e.appendChild(t);
   msgs.appendChild(e); msgs.scrollTop=1e9;
 }
 function mostra(r){
   if(typeof r==='string') return bolla(r,'in');
-  if(r.card){ const c=document.createElement('div'); c.className='card'; c.innerHTML='<h4></h4><div></div>'; c.querySelector('h4').textContent=r.titolo; c.querySelector('div').textContent=r.testo; c.querySelector('div').style.whiteSpace='pre-line'; msgs.appendChild(c); }
-  if(r.sys){ const s=document.createElement('div'); s.className='sys'; s.textContent=r.sys; msgs.appendChild(s); }
+  if(r.card){ const c=document.createElement('div'); c.className='card'; c.innerHTML='<h4></h4><div></div>'; c.querySelector('h4').textContent=r.titolo; c.querySelector('div').textContent=r.testo; msgs.appendChild(c); }
+  if(r.sys){ const s=document.createElement('div'); s.className='cifr'; s.textContent=r.sys; msgs.appendChild(s); }
   msgs.scrollTop=1e9;
 }
+const pausa=ms=>new Promise(x=>setTimeout(x,ms));
 async function invia(testo,vocale){
   testo=testo.trim(); if(!testo) return;
-  bolla(testo,'out',vocale); inp.value=''; aggiornaTasti(); chips([]);
+  bolla(testo,'out',vocale); inp.value=''; tasti(); chips([]);
   const r=rispondi(testo);
-  const ty=document.createElement('div'); ty.className='typing'; ty.textContent='sta scrivendo…'; msgs.appendChild(ty); msgs.scrollTop=1e9;
-  await new Promise(x=>setTimeout(x,700+Math.random()*500)); ty.remove();
-  for(const x of r){ mostra(x); await new Promise(z=>setTimeout(z,350)); }
+  await pausa(400); document.getElementById('stato').textContent='sta scrivendo…';
+  const ty=document.createElement('div'); ty.className='typing'; ty.innerHTML='<i></i><i></i><i></i>'; msgs.appendChild(ty); msgs.scrollTop=1e9;
+  await pausa(800+Math.random()*500); ty.remove(); document.getElementById('stato').textContent='online';
+  for(const x of r){ mostra(x); await pausa(300); }
   suggerimenti();
 }
-function chips(l){ const c=document.getElementById('chips'); c.innerHTML=''; for(const x of l){ const b=document.createElement('button'); b.textContent=x; b.onclick=()=>invia(x); c.appendChild(b);} c.style.display=l.length?'flex':'none'; }
-function suggerimenti(){
-  if(S.step==='scelta') return chips(S.prop.length>1?['La prima','La seconda','La terza','Nessuno va bene']:['Sì','No, un altro orario']);
-  if(S.step==='servizio') return chips(['Taglio','Barba','Taglio e barba']);
-  if(S.step==='giorno') return chips(['Oggi','Domani','Sabato']);
-  if(S.step==='barbiere') return chips(['Con Pio','Con Antonello','Chi è libero']);
-  if(S.step==='nome') return chips(['Marco Rossi']);
-  if(S.prenotazioni.length) return chips(['Devo spostarlo','Non posso venire','Posso portare il cane?','Grazie']);
-  chips(['Vorrei un taglio sabato pomeriggio','Domani alle 18 taglio e barba con Pio','Fate il colore?','Dove si parcheggia?']);
+function chips(l){ const c=document.getElementById('chips'); c.innerHTML=''; for(const x of l){ const b=document.createElement('button'); b.textContent=x; b.onclick=()=>invia(x); c.appendChild(b);} }
+function suggerimenti(){ chips(proposte()); }
+function proposte(){
+  if(S.step==='scelta') return S.prop.length>1?['La prima','La seconda','La terza','Nessuno va bene']:['Sì','No, un altro orario'];
+  if(S.step==='servizio') return ['Taglio','Barba','Taglio e barba'];
+  if(S.step==='giorno') return ['Oggi','Domani','Sabato pomeriggio'];
+  if(S.step==='barbiere') return ['Con Pio','Con Antonello','Chi è libero'];
+  if(S.step==='nome') return ['Marco Rossi'];
+  if(S.prenotazioni.length) return ['Devo spostarlo','Non posso venire','Posso portare il cane?','Grazie'];
+  return ['Vorrei un taglio sabato pomeriggio','Domani alle 18 taglio e barba con Pio','Fate il colore?','Dove si parcheggia?'];
 }
 inp.addEventListener('keydown',e=>{ if(e.key==='Enter') invia(inp.value); });
-inp.addEventListener('input',aggiornaTasti);
+inp.addEventListener('input',tasti);
 document.getElementById('invia').onclick=()=>invia(inp.value);
-function aggiornaTasti(){ const pieno=!!inp.value.trim(); document.getElementById('invia').style.display=pieno?'grid':'none'; document.getElementById('mic').style.display=pieno?'none':'grid'; }
+function tasti(){ const p=!!inp.value.trim(); document.getElementById('invia').style.display=p?'grid':'none'; document.getElementById('mic').style.display=p?'none':'grid'; }
 
-// Vocali: il telefono trascrive la voce (gratis, nel browser)
+// Vocali: la voce viene trascritta dal telefono
 const Riconosci=window.SpeechRecognition||window.webkitSpeechRecognition;
 function ascolta(onTesto,onFine){
-  if(!Riconosci) return false;
-  const r=new Riconosci(); r.lang='it-IT'; r.interimResults=false; r.maxAlternatives=1;
+  if(!Riconosci) return null;
+  let r; try{ r=new Riconosci(); }catch(e){ return null; }
+  r.lang='it-IT'; r.interimResults=false; r.maxAlternatives=1; r.continuous=false;
   let preso=false;
   r.onresult=e=>{ preso=true; onTesto(e.results[0][0].transcript); };
-  r.onend=()=>onFine&&onFine(preso); r.onerror=()=>{};
-  r.start(); return r;
+  r.onerror=()=>{}; r.onend=()=>onFine&&onFine(preso);
+  try{ r.start(); }catch(e){ return null; }
+  return r;
 }
 const mic=document.getElementById('mic');
 mic.onclick=()=>{
-  if(!Riconosci){ bolla('Su questo telefono i vocali nella demo non funzionano: scrivi pure, l\'assistente vero li capisce sempre.','in'); return; }
   mic.classList.add('rec');
-  ascolta(t=>invia(t,true),()=>mic.classList.remove('rec'));
+  const r=ascolta(t=>invia(t,true),preso=>{ mic.classList.remove('rec'); if(!preso) bolla('Non ho sentito niente. Riprova tenendo il telefono vicino, oppure scrivi.','in'); });
+  if(!r){ mic.classList.remove('rec'); bolla('Su questo telefono la prova dei vocali non parte: scrivi pure. L\'assistente vero i vocali li capisce sempre.','in'); }
 };
 
+// Menu e pagine
+const menu=document.getElementById('menu');
+document.getElementById('btnMenu').onclick=e=>{ e.stopPropagation(); menu.classList.toggle('on'); };
+document.addEventListener('click',()=>menu.classList.remove('on'));
+menu.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>apri(b.dataset.p));
+document.querySelectorAll('.chiudiPag').forEach(b=>b.onclick=()=>b.closest('.pagina').classList.add('sotto'));
+function apri(id){ menu.classList.remove('on'); if(id==='pAgenda') disegnaAgenda(); if(id==='pCassa') disegnaCassa(); document.getElementById(id).classList.remove('sotto'); }
+document.getElementById('ricomincia').onclick=()=>location.reload();
+
 // ===================== CHIAMATA =====================
-let inChiamata=false, rec=null;
-const st=document.getElementById('telStato'), sub=document.getElementById('sottotitolo');
-function voce(){ const v=speechSynthesis.getVoices().filter(v=>v.lang&&v.lang.startsWith('it')); return v.find(x=>/luca|alice|federica|paola|google/i.test(x.name))||v[0]; }
+// Sull'iPhone la voce parte solo se la prima frase nasce dal tocco: per questo la prima frase si dice subito.
+let inChiamata=false, recC=null, voceIt=null;
+const cTesti=document.getElementById('cTesti'), cStato=document.getElementById('cStato'), cAv=document.getElementById('cAvatar'), cMic=document.getElementById('cMic');
+function scegliVoce(){ const v=('speechSynthesis' in window)?speechSynthesis.getVoices().filter(v=>(v.lang||'').toLowerCase().startsWith('it')):[]; voceIt=v.find(x=>/luca|alice|federica|paola|emma|diego/i.test(x.name))||v[0]||null; }
+if('speechSynthesis' in window){ scegliVoce(); speechSynthesis.onvoiceschanged=scegliVoce; }
+function riga(testo,chi){ const p=document.createElement('p'); p.className=chi; p.textContent=testo; cTesti.appendChild(p); cTesti.scrollTop=1e9; }
 function parla(testo){
+  riga(testo,'a');
   return new Promise(ok=>{
-    sub.textContent=testo;
-    if(!('speechSynthesis' in window)) return setTimeout(ok,1500);
-    speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(testo.replace(/\n\d\. /g,', ').replace(/\n/g,'. ')); u.lang='it-IT'; const v=voce(); if(v) u.voice=v; u.rate=1.04;
-    u.onend=ok; u.onerror=ok; speechSynthesis.speak(u);
+    if(!('speechSynthesis' in window)){ setTimeout(ok,Math.min(4000,testo.length*55)); return; }
+    const u=new SpeechSynthesisUtterance(testo.replace(/\n\d\. /g,', ').replace(/\n/g,'. ').replace(/(\d{2}):00/g,'$1').replace(/:/g,' e '));
+    u.lang='it-IT'; if(voceIt) u.voice=voceIt; u.rate=1.02;
+    let fatto=false; const fine=()=>{ if(!fatto){ fatto=true; cAv.classList.remove('parla'); ok(); } };
+    u.onstart=()=>cAv.classList.add('parla'); u.onend=fine; u.onerror=fine;
+    setTimeout(fine, 2500+testo.length*90); // se il telefono non dà segnale, si va avanti lo stesso
+    speechSynthesis.speak(u);
   });
 }
+function cChips(l){ const c=document.getElementById('cChips'); c.innerHTML=''; for(const x of l){ const b=document.createElement('button'); b.textContent=x; b.onclick=()=>{ if(inChiamata) turno(x); }; c.appendChild(b);} }
 async function turno(testo){
-  sub.innerHTML=''; const tu=document.createElement('span'); tu.className='tu'; tu.textContent='Tu: '+testo;
-  const r=rispondi(testo); const frasi=r.map(x=>typeof x==='string'?x:x.card?'Ti confermo l\'appuntamento.':null).filter(Boolean);
-  for(const f of frasi){ if(!inChiamata) return; await parla(f); }
-  sub.appendChild(tu);
+  if(recC){ try{recC.abort()}catch(e){} recC=null; cMic.classList.remove('rec'); }
+  cChips([]); riga(testo,'u'); cStato.textContent='In chiamata';
+  const r=rispondi(testo);
+  const frasi=r.map(x=>typeof x==='string'?x:x.card?null:null).filter(Boolean);
+  for(const f of frasi){ if(!inChiamata) return; await parla(f.replace('Ti mando un promemoria','Ti mando il riepilogo su WhatsApp e un promemoria')); }
   if(!inChiamata) return;
-  if(S.prenotazioni.length&&!S.step&&frasi.some(f=>/ti aspettiamo/.test(f))){ await parla('Ti mando anche il riepilogo su WhatsApp. Ciao e a presto.'); fineChiamata(); return; }
-  ascoltaChiamata();
+  if(r.some(x=>x&&x.card)){ await parla('Grazie della chiamata, ciao.'); chiudiChiamata(); return; }
+  cStato.textContent='Tocca il microfono e rispondi'; cChips(proposte());
 }
-function ascoltaChiamata(){
-  if(!inChiamata) return;
-  if(!Riconosci){ document.getElementById('telTesto').style.display='flex'; st.textContent='Scrivi la risposta (su questo telefono il microfono non funziona nella demo)'; return; }
-  st.textContent='Ti ascolto…';
-  rec=ascolta(t=>{ st.textContent='In chiamata'; turno(t); },preso=>{ if(!preso&&inChiamata) setTimeout(ascoltaChiamata,300); });
-}
-document.getElementById('chiama').onclick=async()=>{
-  inChiamata=true; reset();
-  document.getElementById('chiama').style.display='none'; document.getElementById('chiudi').style.display='grid';
-  st.textContent='Chiamata in corso'; await new Promise(x=>setTimeout(x,1200));
-  await parla('Ciao, hai chiamato GAAP. Sono l\'assistente del salone, ti posso prenotare un appuntamento. Cosa ti serve?');
-  ascoltaChiamata();
+document.getElementById('btnChiama').onclick=()=>{
+  reset(); S.chiestoBarbiere=false; inChiamata=true; cTesti.innerHTML=''; cChips([]);
+  document.getElementById('chiamata').classList.remove('sotto');
+  cStato.textContent='In chiamata';
+  // prima frase subito, dentro il tocco: così l'iPhone la fa sentire
+  if('speechSynthesis' in window){ speechSynthesis.cancel(); scegliVoce(); }
+  parla('Ciao, hai chiamato GAAP. Sono l\'assistente del salone, ti posso prenotare un appuntamento. Cosa ti serve?').then(()=>{ if(inChiamata){ cStato.textContent='Tocca il microfono e rispondi'; cChips(proposte()); } });
 };
-function fineChiamata(){
-  inChiamata=false; try{rec&&rec.abort()}catch(e){} speechSynthesis&&speechSynthesis.cancel();
-  document.getElementById('chiama').style.display='grid'; document.getElementById('chiudi').style.display='none';
-  document.getElementById('telTesto').style.display='none'; st.textContent='Chiamata terminata. Guarda l\'Agenda.';
+cMic.onclick=()=>{
+  if(!inChiamata) return;
+  if('speechSynthesis' in window) speechSynthesis.cancel();
+  cMic.classList.add('rec'); document.getElementById('cMicEt').textContent='Ti ascolto…';
+  recC=ascolta(t=>turno(t),preso=>{ cMic.classList.remove('rec'); document.getElementById('cMicEt').textContent='Tocca e parla'; if(!preso&&inChiamata) cStato.textContent='Non ho sentito: riprova o tocca una risposta'; });
+  if(!recC){ cMic.classList.remove('rec'); document.getElementById('cMicEt').textContent='Tocca e parla'; cStato.textContent='Il microfono qui non parte: tocca una risposta qui sopra'; }
+};
+function chiudiChiamata(){
+  inChiamata=false; if(recC){ try{recC.abort()}catch(e){} } if('speechSynthesis' in window) speechSynthesis.cancel();
+  cAv.classList.remove('parla'); cStato.textContent='Chiamata terminata';
+  setTimeout(()=>document.getElementById('chiamata').classList.add('sotto'),700);
+  if(S.prenotazioni.length){ const p=S.prenotazioni.at(-1); mostra({card:true,titolo:'APPUNTAMENTO CONFERMATO',testo:`${p.nome}\n${p.servNome[0].toUpperCase()+p.servNome.slice(1)} con ${nomeB(p.b)}\n${nomeData(p.d)[0].toUpperCase()+nomeData(p.d).slice(1)} alle ${hhmm(p.t)}\nGAAP · Santeramo in Colle`}); mostra({sys:'Prenotato al telefono: il riepilogo arriva anche qui su WhatsApp.'}); suggerimenti(); }
 }
-document.getElementById('chiudi').onclick=fineChiamata;
-const telInp=document.getElementById('telInp');
-const mandaTel=()=>{ if(telInp.value.trim()){ const v=telInp.value; telInp.value=''; turno(v);} };
-document.getElementById('telInvia').onclick=mandaTel; telInp.addEventListener('keydown',e=>{ if(e.key==='Enter') mandaTel(); });
+document.getElementById('cChiudi').onclick=chiudiChiamata;
 
 // ===================== AGENDA =====================
 let giornoAg=oggi0(); while(!SALONE.orari[giornoAg.getDay()].length) giornoAg=piuGiorni(giornoAg,1);
-function avvisoAgenda(d){ giornoAg=new Date(d); disegnaAgenda(); }
+function avvisoAgenda(d){ giornoAg=new Date(d); }
 function disegnaAgenda(){
-  document.getElementById('agTitolo').textContent=nomeData(giornoAg);
+  const t=nomeData(giornoAg); document.getElementById('agTitolo').textContent=t[0].toUpperCase()+t.slice(1);
   const g=document.getElementById('griglia'); g.innerHTML='';
-  const h=x=>{const e=document.createElement('div'); e.className='h'; e.textContent=x; g.appendChild(e);};
-  h(''); SALONE.barbieri.forEach(b=>h(b.nome));
-  const fasce=SALONE.orari[giornoAg.getDay()];
-  if(!fasce.length){ const e=document.createElement('div'); e.style.gridColumn='1/-1'; e.className='vuoto'; e.style.padding='20px 0'; e.textContent='Salone chiuso.'; g.appendChild(e); return; }
-  const gior=giornata(giornoAg);
-  for(const [a,c] of fasce){
+  const vuota=document.createElement('div'); vuota.className='h'; g.appendChild(vuota);
+  SALONE.barbieri.forEach(b=>{ const e=document.createElement('div'); e.className='h'; e.innerHTML='<i></i>'; e.querySelector('i').style.background=b.col; e.append(b.nome); g.appendChild(e); });
+  const fasce=SALONE.orari[giornoAg.getDay()]; const gior=giornata(giornoAg);
+  fasce.forEach(([a,c],k)=>{
     for(let t=a;t<c;t+=15){
       const o=document.createElement('div'); o.className='ora'; o.textContent=t%60===0?hhmm(t):''; g.appendChild(o);
-      SALONE.barbieri.forEach(b=>{
-        const s=document.createElement('div'); s.className='slot';
-        const app=gior[b.id].find(x=>t>=x.da&&t<x.a);
-        if(app){ s.style.background=b.col; s.classList.add(app.mio?'mio':'occ'); if(app.mio) s.title=app.cliente+' · '+app.servizio; }
-        g.appendChild(s);
-      });
+      SALONE.barbieri.forEach(b=>{ const s=document.createElement('div'); s.className='slot'; const app=gior[b.id].find(x=>t>=x.da&&t<x.a); if(app){ s.style.background=b.col; s.classList.add(app.mio?'mio':'occ'); } g.appendChild(s); });
     }
-    if(c!==fasce.at(-1)[1]){ const p=document.createElement('div'); p.style.gridColumn='1/-1'; p.style.height='10px'; g.appendChild(p); }
-  }
+    if(k<fasce.length-1){ const p=document.createElement('div'); p.style.cssText='grid-column:1/-1;height:12px'; g.appendChild(p); }
+  });
 }
 document.getElementById('prec').onclick=()=>{ do{ giornoAg=piuGiorni(giornoAg,-1);}while(!SALONE.orari[giornoAg.getDay()].length); disegnaAgenda(); };
 document.getElementById('succ').onclick=()=>{ do{ giornoAg=piuGiorni(giornoAg,1);}while(!SALONE.orari[giornoAg.getDay()].length); disegnaAgenda(); };
-function avviso(testo){
-  const a=document.getElementById('avvisi'); if(a.querySelector('.vuoto')) a.innerHTML='';
-  const p=document.createElement('p'); p.textContent=ora()+' · '+testo; p.style.marginBottom='6px'; a.prepend(p);
+function avviso(testo){ const a=document.getElementById('avvisi'); if(a.querySelector('.vuoto')) a.innerHTML=''; const p=document.createElement('p'); p.style.cssText='font-size:13.5px;line-height:1.45;margin-bottom:8px'; p.textContent=ora()+' · '+testo; a.prepend(p); }
+
+// ===================== CASSA =====================
+// Giornata di esempio: prezzi e clienti inventati, uguali a ogni apertura.
+const PREZZI={taglio:20,barba:10,taglio_barba:28};
+const NOMI=['Marco','Luca','Giuseppe','Antonio','Francesco','Vito','Nicola','Michele','Domenico','Pietro','Angelo','Gianni','Rocco','Leo','Mattia','Davide','Simone','Paolo','Andrea','Stefano'];
+const cassa=[];
+(function(){
+  const r=rnd(20261110); const serv=['taglio','taglio','taglio_barba','barba','taglio','taglio_barba'];
+  SALONE.barbieri.forEach((b,i)=>{
+    const n=6+Math.floor(r()*4); let t=540+Math.floor(r()*3)*15;
+    for(let k=0;k<n;k++){
+      const s=serv[Math.floor(r()*serv.length)];
+      cassa.push({ora:t,b:b.id,cliente:NOMI[Math.floor(r()*NOMI.length)],serv:s,importo:PREZZI[s]+(r()<0.12?12:0),metodo:r()<0.55?'carta':'contanti',prod:false});
+      t+=45+Math.floor(r()*4)*15; if(t>=780&&t<900) t=900+Math.floor(r()*2)*15; if(t>1185) break;
+    }
+  });
+  cassa.sort((a,b)=>a.ora-b.ora);
+})();
+const euro=n=>n.toLocaleString('it-IT',{minimumFractionDigits:0,maximumFractionDigits:2})+' €';
+function disegnaCassa(){
+  const tot=cassa.reduce((s,x)=>s+x.importo,0), carta=cassa.filter(x=>x.metodo==='carta').reduce((s,x)=>s+x.importo,0);
+  document.getElementById('totali').innerHTML=`<div class="grande"><b>${euro(tot)}</b><span>incassato oggi · ${cassa.length} clienti</span></div><div><b>${euro(carta)}</b><span>carta</span></div><div><b>${euro(tot-carta)}</b><span>contanti</span></div><div><b>${euro(Math.round(tot/cassa.length))}</b><span>a cliente</span></div>`;
+  let h='<tr><th>Barbiere</th><th class="n">Clienti</th><th class="n">Carta</th><th class="n">Contanti</th><th class="n">Totale</th></tr>';
+  SALONE.barbieri.forEach(b=>{ const l=cassa.filter(x=>x.b===b.id); const c=l.filter(x=>x.metodo==='carta').reduce((s,x)=>s+x.importo,0), t=l.reduce((s,x)=>s+x.importo,0); h+=`<tr><td><span class="pallino" style="background:${b.col};outline:1px solid #ccc"></span>${b.nome}</td><td class="n">${l.length}</td><td class="n">${euro(c)}</td><td class="n">${euro(t-c)}</td><td class="n"><b>${euro(t)}</b></td></tr>`; });
+  document.getElementById('perB').innerHTML=h;
+  let l='<tr><th>Ora</th><th>Barbiere</th><th>Servizio</th><th class="n">Importo</th></tr>';
+  [...cassa].reverse().forEach(x=>{ l+=`<tr><td>${hhmm(x.ora)}</td><td>${nomeB(x.b)}</td><td>${x.prod?'prodotto':SALONE.servizi[x.serv]?SALONE.servizi[x.serv].nome:x.serv}</td><td class="n">${euro(x.importo)} · ${x.metodo}</td></tr>`; });
+  document.getElementById('lista').innerHTML=l;
+  const migliore=SALONE.barbieri.map(b=>({n:b.nome,t:cassa.filter(x=>x.b===b.id).reduce((s,x)=>s+x.importo,0)})).sort((a,b)=>b.t-a.t)[0];
+  const rr=document.getElementById('resoconto'); rr.textContent=`Resoconto di oggi\nIncassato: ${euro(tot)} (${cassa.length} clienti)\nCarta: ${euro(carta)} · Contanti: ${euro(tot-carta)}\n`+SALONE.barbieri.map(b=>`${b.nome}: ${euro(cassa.filter(x=>x.b===b.id).reduce((s,x)=>s+x.importo,0))}`).join(' · ')+`\nHa incassato di più: ${migliore.n}`;
+  const t=document.createElement('span'); t.className='t'; t.textContent='20:30'; rr.appendChild(t);
 }
+function segnaPagamento(testo){
+  const t=norm(testo); const out=document.getElementById('sRisp');
+  const b=SALONE.barbieri.find(x=>new RegExp('\\b'+x.id+'\\b').test(t));
+  const m=t.match(/(\d+(?:[.,]\d{1,2})?)/);
+  const metodo=/carta|pos|bancomat/.test(t)?'carta':/contant|cash|soldi/.test(t)?'contanti':null;
+  if(!b){ out.textContent='Chi sei? Scrivi anche il tuo nome, es. "Pio pagato 25 carta".'; return; }
+  if(!m){ out.textContent='Quanto ha pagato? Es. "pagato 25 carta".'; return; }
+  if(!metodo){ out.textContent='Carta o contanti?'; return; }
+  const imp=parseFloat(m[1].replace(',','.')); const d=new Date();
+  cassa.push({ora:Math.min(d.getHours()*60+d.getMinutes(),1199),b:b.id,cliente:'',serv:/prodott|shampoo|cera/.test(t)?'prodotto':/barba/.test(t)&&/tagli/.test(t)?'taglio_barba':/barba/.test(t)?'barba':'taglio',importo:imp,metodo,prod:/prodott|shampoo|cera/.test(t)});
+  out.textContent=`Segnato: ${euro(imp)} ${metodo}, ${b.nome}.`; document.getElementById('sInp').value=''; disegnaCassa();
+}
+document.getElementById('sInvia').onclick=()=>segnaPagamento(document.getElementById('sInp').value);
+document.getElementById('sInp').addEventListener('keydown',e=>{ if(e.key==='Enter') segnaPagamento(e.target.value); });
 
-// ===================== SCHEDE =====================
-document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
-  document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x===b));
-  document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id===b.dataset.s));
-  if(b.dataset.s==='agenda') disegnaAgenda();
-  if(b.dataset.s!=='tel'&&inChiamata) fineChiamata();
-});
-
-// Avvio
-bolla('Ciao Giovanni, questa è una prova dell\'assistente di GAAP. Scrivimi come se fossi un cliente, anche con un vocale, e prova a prenotare. Puoi anche chiamare dalla scheda Chiamata.','in');
-suggerimenti(); disegnaAgenda();
-if('speechSynthesis' in window) speechSynthesis.getVoices();
+// ===================== AVVIO =====================
+(function(){
+  const d=document.createElement('div'); d.className='data'; d.textContent='OGGI'; msgs.appendChild(d);
+  const c=document.createElement('div'); c.className='cifr'; c.textContent='Demo dell\'assistente GAAP. Scrivi come un cliente, manda un vocale o chiama dalla cornetta in alto. Agenda e cassa sono nel menu ⋮'; msgs.appendChild(c);
+  bolla('Ciao, sono l\'assistente di GAAP. Ti prenoto un taglio, una barba o tutti e due: dimmi giorno e ora che preferisci.','in');
+  suggerimenti();
+})();
 </script>
 </body>
 </html>
