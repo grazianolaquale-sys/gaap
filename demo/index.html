@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>GAAP · Assistente (demo)</title>
+<meta name="theme-color" content="#0B0B0B">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--nero:#0B0B0B;--bianco:#F5F5F2;--grigio:#9B9B96;--linea:#2A2A2A;--verde:#25D366;--wa-bg:#ECE5DD;--wa-out:#DCF8C6}
+html,body{height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;background:var(--nero);color:var(--bianco);display:flex;justify-content:center}
+.app{width:100%;max-width:480px;height:100dvh;display:flex;flex-direction:column;background:var(--nero)}
+header{padding:14px 16px 10px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--linea)}
+.logo{width:40px;height:40px;border-radius:50%;background:var(--bianco);color:var(--nero);display:grid;place-items:center;font-weight:800;font-size:20px;letter-spacing:-1px}
+header h1{font-size:16px;font-weight:700}
+header p{font-size:12px;color:var(--grigio)}
+.demo{margin-left:auto;font-size:10px;letter-spacing:.12em;border:1px solid var(--grigio);color:var(--grigio);padding:3px 7px;border-radius:20px}
+nav{display:flex;border-bottom:1px solid var(--linea)}
+nav button{flex:1;background:none;border:0;color:var(--grigio);font:600 13px/1 inherit;padding:12px 0;letter-spacing:.04em}
+nav button.on{color:var(--bianco);box-shadow:inset 0 -2px 0 var(--bianco)}
+section{flex:1;display:none;min-height:0}
+section.on{display:flex;flex-direction:column}
+/* Chat WhatsApp */
+#chat .barra{background:#075E54;color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px}
+#chat .barra .logo{width:34px;height:34px;font-size:16px}
+#chat .barra b{font-size:15px;display:block}
+#chat .barra small{font-size:11.5px;opacity:.8}
+#msgs{flex:1;overflow-y:auto;background:var(--wa-bg);padding:12px 10px 16px;display:flex;flex-direction:column;gap:6px}
+.m{max-width:82%;padding:7px 10px 18px;border-radius:9px;font-size:15px;line-height:1.35;color:#111;position:relative;white-space:pre-line;word-wrap:break-word}
+.m .t{position:absolute;right:8px;bottom:3px;font-size:10.5px;color:#667}
+.in{background:#fff;align-self:flex-start;border-top-left-radius:2px}
+.out{background:var(--wa-out);align-self:flex-end;border-top-right-radius:2px}
+.out .t::after{content:" ✓✓";color:#34B7F1}
+.vocale{font-style:italic;color:#555}
+.vocale::before{content:"Vocale trascritto · ";font-style:normal;font-weight:600;color:#075E54}
+.card{background:#fff;border-radius:10px;align-self:flex-start;max-width:85%;overflow:hidden;color:#111;font-size:14px}
+.card h4{background:var(--nero);color:var(--bianco);font-size:12px;letter-spacing:.1em;padding:8px 12px}
+.card div{padding:10px 12px;line-height:1.55}
+.sys{align-self:center;background:#FFF3C4;color:#5a4a00;font-size:12px;padding:5px 10px;border-radius:7px;text-align:center;max-width:90%}
+.typing{align-self:flex-start;background:#fff;border-radius:9px;padding:9px 12px;color:#888;font-size:13px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:8px 10px;background:#F0F0F0;border-top:1px solid #ddd}
+.chips button{flex:none;border:1px solid #c9c9c9;background:#fff;color:#111;border-radius:16px;padding:6px 11px;font:13px inherit}
+.scrivi{display:flex;gap:8px;padding:8px;background:#F0F0F0;align-items:center;padding-bottom:max(8px,env(safe-area-inset-bottom))}
+.scrivi input{flex:1;border:0;border-radius:22px;padding:11px 15px;font:16px inherit;color:#111;background:#fff;outline:none}
+.tondo{width:44px;height:44px;border-radius:50%;border:0;background:#075E54;color:#fff;display:grid;place-items:center;flex:none}
+.tondo svg{width:20px;height:20px;fill:#fff}
+.tondo.rec{background:#E53935;animation:pul 1s infinite}
+@keyframes pul{50%{transform:scale(1.08)}}
+/* Chiamata */
+#tel{align-items:center;justify-content:space-between;padding:40px 24px calc(30px + env(safe-area-inset-bottom));background:radial-gradient(circle at 50% 30%,#1c1c1c,#0B0B0B 70%)}
+#tel .chi{text-align:center}
+#tel .chi .logo{width:96px;height:96px;font-size:44px;margin:0 auto 16px}
+#tel h2{font-size:26px}
+#tel .stato{color:var(--grigio);margin-top:6px;font-size:15px}
+#sottotitolo{min-height:120px;width:100%;text-align:center;font-size:17px;line-height:1.45;padding:0 6px}
+#sottotitolo .tu{color:var(--grigio);font-size:15px;display:block;margin-top:10px}
+.tasti{display:flex;gap:40px}
+.tasti button{width:72px;height:72px;border-radius:50%;border:0;display:grid;place-items:center}
+.tasti svg{width:30px;height:30px;fill:#fff}
+.verde{background:#2ECC71}.rosso{background:#E53935}
+#telTesto{display:none;width:100%;gap:8px}
+#telTesto input{flex:1;border:1px solid var(--linea);background:#151515;color:var(--bianco);border-radius:22px;padding:11px 15px;font:16px inherit}
+/* Agenda */
+#agenda{overflow-y:auto;padding:14px 14px 30px}
+#agenda .giorno{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+#agenda .giorno button{background:#1a1a1a;border:1px solid var(--linea);color:var(--bianco);border-radius:8px;width:36px;height:36px;font-size:18px}
+#agenda .giorno b{flex:1;text-align:center;font-size:16px;text-transform:capitalize}
+.colonne{display:grid;grid-template-columns:42px repeat(5,1fr);gap:3px;font-size:11px}
+.colonne .h{color:var(--grigio);text-align:center;padding-bottom:6px;font-weight:600}
+.ora{color:var(--grigio);font-size:10px;text-align:right;padding-right:4px}
+.slot{height:14px;border-radius:3px;background:#141414}
+.slot.occ{opacity:.45}
+.slot.mio{opacity:1;outline:2px solid #fff}
+.leg{margin-top:14px;font-size:12px;color:var(--grigio);line-height:1.6}
+.avvisi{margin-top:16px;border:1px solid var(--linea);border-radius:10px;padding:12px;font-size:13px;line-height:1.5}
+.avvisi h3{font-size:12px;letter-spacing:.1em;color:var(--grigio);margin-bottom:6px}
+.vuoto{color:var(--grigio)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo">G</div>
+    <div><h1>Assistente GAAP</h1><p>Prova come risponde ai tuoi clienti</p></div>
+    <span class="demo">DEMO</span>
+  </header>
+  <nav>
+    <button class="on" data-s="chat">WhatsApp</button>
+    <button data-s="tel">Chiamata</button>
+    <button data-s="agenda">Agenda</button>
+  </nav>
+
+  <section id="chat" class="on">
+    <div class="barra"><div class="logo">G</div><div><b>GAAP</b><small>online</small></div></div>
+    <div id="msgs"></div>
+    <div class="chips" id="chips"></div>
+    <div class="scrivi">
+      <input id="inp" placeholder="Scrivi come un cliente…" autocomplete="off" enterkeyhint="send">
+      <button class="tondo" id="mic" aria-label="Messaggio vocale"><svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V22h2v-3.08A7 7 0 0 0 19 12h-2z"/></svg></button>
+      <button class="tondo" id="invia" aria-label="Invia" style="display:none"><svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg></button>
+    </div>
+  </section>
+
+  <section id="tel">
+    <div class="chi"><div class="logo">G</div><h2>GAAP</h2><div class="stato" id="telStato">Chiama come farebbe un cliente</div></div>
+    <div id="sottotitolo"></div>
+    <div id="telTesto"><input id="telInp" placeholder="Rispondi qui…"><button class="tondo" id="telInvia"><svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg></button></div>
+    <div class="tasti">
+      <button class="verde" id="chiama" aria-label="Chiama"><svg viewBox="0 0 24 24"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.6a1 1 0 0 1-.25 1z"/></svg></button>
+      <button class="rosso" id="chiudi" aria-label="Chiudi" style="display:none"><svg viewBox="0 0 24 24"><path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1a1 1 0 0 1-.56.9 11.5 11.5 0 0 0-2.66 1.85 1 1 0 0 1-1.41 0L.3 13.08a1 1 0 0 1 0-1.41A16.9 16.9 0 0 1 12 7c4.5 0 8.6 1.76 11.7 4.67a1 1 0 0 1 0 1.41l-2.48 2.49a1 1 0 0 1-1.41 0 11.3 11.3 0 0 0-2.66-1.85 1 1 0 0 1-.56-.9v-3.1A15 15 0 0 0 12 9z"/></svg></button>
+    </div>
+  </section>
+
+  <section id="agenda">
+    <div class="giorno"><button id="prec">‹</button><b id="agTitolo"></b><button id="succ">›</button></div>
+    <div class="colonne" id="griglia"></div>
+    <div class="leg">Quello che vedono Giovanni e i ragazzi sul calendario del telefono, ognuno col suo colore. Gli appuntamenti presi nella prova hanno il bordo bianco. Gli altri sono di esempio.</div>
+    <div class="avvisi"><h3>AVVISI A GIOVANNI</h3><div id="avvisi"><span class="vuoto">Nessun avviso. Arrivano qui i casi strani, come ritardi o richieste particolari.</span></div></div>
+  </section>
+</div>
+
+<script>
+// ===================== DATI DEL SALONE =====================
+// Orari e durate sono di prova: quelli veri arrivano da Giovanni.
+const SALONE = {
+  barbieri: [
+    {id:'giovanni', nome:'Giovanni', col:'#E8E8E3'},
+    {id:'pio', nome:'Pio', col:'#4F8DF7'},
+    {id:'valerio', nome:'Valerio', col:'#3DBE6B'},
+    {id:'antonello', nome:'Antonello', col:'#F2A33A'},
+    {id:'nunzio', nome:'Nunzio', col:'#B57BEA'}
+  ],
+  servizi: {
+    taglio: {nome:'taglio', min:30},
+    barba: {nome:'barba', min:15},
+    taglio_barba: {nome:'taglio e barba', min:45}
+  },
+  orari: {0:[], 1:[], 2:[[540,780],[900,1200]], 3:[[540,780],[900,1200]], 4:[[540,780],[900,1200]], 5:[[540,780],[900,1200]], 6:[[540,780],[900,1200]]},
+  bucoMinimo: 30, preavvisoMin: 60, anticipoGiorni: 30
+};
+const GIORNI = ['domenica','lunedì','martedì','mercoledì','giovedì','venerdì','sabato'];
+const MESI = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
+const hhmm = m => String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+const dKey = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const oggi0 = () => { const d=new Date(); d.setHours(0,0,0,0); return d; };
+const piuGiorni = (d,n) => { const x=new Date(d); x.setDate(x.getDate()+n); return x; };
+const nomeData = d => { const diff=Math.round((d-oggi0())/864e5); const base=GIORNI[d.getDay()]+' '+d.getDate()+' '+MESI[d.getMonth()]; return diff===0?'oggi, '+base:diff===1?'domani, '+base:base; };
+const nomeB = id => SALONE.barbieri.find(b=>b.id===id).nome;
+
+// ===================== AGENDA DI ESEMPIO =====================
+// Appuntamenti finti ma sempre uguali per lo stesso giorno, per riempire il calendario.
+function rnd(seed){ let s=seed; return ()=>{ s=(s*9301+49297)%233280; return s/233280; }; }
+const agenda = {}; // chiave giorno -> barbiere -> [{da,a,mio,cliente,servizio}]
+function giornata(d){
+  const k=dKey(d);
+  if(agenda[k]) return agenda[k];
+  const g={}; const fasce=SALONE.orari[d.getDay()];
+  SALONE.barbieri.forEach((b,i)=>{
+    g[b.id]=[]; const r=rnd(d.getDate()*31+d.getMonth()*7+i*13);
+    for(const [a,c] of fasce){
+      let t=a;
+      while(t<c){
+        const dur=[30,30,45,15,30][Math.floor(r()*5)];
+        if(t+dur>c) break;
+        if(r()<0.55) g[b.id].push({da:t,a:t+dur,mio:false});
+        t+=dur;
+      }
+    }
+  });
+  return agenda[k]=g;
+}
+function valido(d,bid,inizio,dur){
+  const fasce=SALONE.orari[d.getDay()]; const fine=inizio+dur;
+  const f=fasce.find(([a,c])=>inizio>=a&&fine<=c); if(!f) return false;
+  const now=new Date(); const quando=new Date(d); quando.setHours(0,inizio,0,0);
+  if(quando-now < SALONE.preavvisoMin*6e4) return false;
+  const occ=giornata(d)[bid];
+  if(occ.some(o=>inizio<o.a&&fine>o.da)) return false;
+  const prima=Math.max(f[0],...occ.filter(o=>o.a<=inizio).map(o=>o.a));
+  const dopo=Math.min(f[1],...occ.filter(o=>o.da>=fine).map(o=>o.da));
+  const b1=inizio-prima,b2=dopo-fine;
+  return !(b1>0&&b1<SALONE.bucoMinimo)&&!(b2>0&&b2<SALONE.bucoMinimo);
+}
+function liberi(d,serv,bid,dopoMin,primaMin){
+  const dur=SALONE.servizi[serv].min; const out=[];
+  const ids=bid?[bid]:SALONE.barbieri.map(b=>b.id);
+  for(const id of ids) for(const [a,c] of SALONE.orari[d.getDay()]) for(let t=a;t+dur<=c;t+=15){
+    if(dopoMin!=null&&t<dopoMin) continue; if(primaMin!=null&&t>=primaMin) continue;
+    if(valido(d,id,t,dur)) out.push({b:id,t});
+  }
+  return out.sort((x,y)=>x.t-y.t);
+}
+
+// ===================== CAPIRE IL MESSAGGIO =====================
+const norm = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w\s:\/.]/g,' ');
+function leggiServizio(t){
+  if(/permanent|colore|tinta|meches|decolor|colpi di sole|stiratura/.test(t)) return 'nonfatto';
+  if(/taglio e barba|barba e taglio|capelli e barba|barba e capelli|completo|tutti e due/.test(t)) return 'taglio_barba';
+  if(/barba/.test(t)) return 'barba';
+  if(/tagli|capelli|sfumat|fade|rasat|aggiust|sistemat|spunt/.test(t)) return 'taglio';
+  return null;
+}
+function leggiBarbiere(t){
+  for(const b of SALONE.barbieri) if(new RegExp('\\b'+b.id+'\\b').test(t)) return b.id;
+  if(/chiunque|qualsiasi|indifferente|non importa|e uguale|uno qualsiasi|chi e libero|chi capita/.test(t)) return 'any';
+  return null;
+}
+function leggiGiorno(t){
+  const o=oggi0();
+  if(/\bdopodomani\b/.test(t)) return piuGiorni(o,2);
+  if(/\bdomani\b/.test(t)) return piuGiorni(o,1);
+  if(/\boggi\b|stamattina|stasera|stesso giorno/.test(t)) return o;
+  const g=['domenica','lunedi','martedi','mercoledi','giovedi','venerdi','sabato'];
+  for(let i=0;i<7;i++) if(new RegExp('\\b'+g[i]).test(t)){ let n=(i-o.getDay()+7)%7; if(n===0&&/prossim/.test(t)) n=7; return piuGiorni(o,n); }
+  let m=t.match(/\b(\d{1,2})\s*\/\s*(\d{1,2})\b/);
+  if(m){ const d=new Date(o.getFullYear(),+m[2]-1,+m[1]); if(d<o) d.setFullYear(d.getFullYear()+1); return d; }
+  m=t.match(/\b(?:il|del|per il)\s+(\d{1,2})\b(?!\s*:)/);
+  if(m&&+m[1]>=1&&+m[1]<=31){ let d=new Date(o.getFullYear(),o.getMonth(),+m[1]); if(d<o) d=new Date(o.getFullYear(),o.getMonth()+1,+m[1]); return d; }
+  return null;
+}
+function leggiOra(t){
+  let m=t.match(/\b(?:alle|per le|verso le|dalle|ore|le)\s+(\d{1,2})(?:[:.](\d{2})|\s+e\s+(mezza|un quarto|tre quarti|trenta|quindici|quarantacinque))?\b/) || t.match(/\b(\d{1,2})[:.](\d{2})\b/);
+  if(m){
+    let h=+m[1], mi=m[2]?+m[2]:0;
+    const extra={mezza:30,'un quarto':15,'tre quarti':45,trenta:30,quindici:15,quarantacinque:45};
+    if(m[3]) mi=extra[m[3]];
+    if(h>=1&&h<=8) h+=12; // "alle 5" = 17
+    if(h>=8&&h<=20) return {esatta:h*60+mi};
+  }
+  if(/mattin/.test(t)) return {fascia:[0,780]};
+  if(/pomeriggio|sera|dopo pranzo/.test(t)) return {fascia:[900,1440]};
+  if(/presto|prima possibile|appena|primo posto/.test(t)) return {fascia:[0,1440]};
+  return null;
+}
+const SI = /^(si|sì|ok|okay|va bene|vabene|perfetto|confermo|conferma|esatto|certo|d accordo|benissimo|si grazie|ok grazie|si si|va benissimo)\b/;
+const NO = /^(no|nessuno|non va|non mi va|altro|altri|diverso)\b/;
+
+// ===================== IL CERVELLO DELLA DEMO =====================
+let S = {serv:null,giorno:null,ora:null,barb:null,nome:null,step:null,prop:[],scelta:null,prenotazioni:[]};
+function reset(){ Object.assign(S,{serv:null,giorno:null,ora:null,barb:null,step:null,prop:[],scelta:null}); }
+
+function faq(t){
+  if(/\bcane|cani|cagnolin/.test(t)) return 'Sì, puoi venire con il cane.';
+  if(/carta|bancomat|pos\b|contanti|come si paga|pagare/.test(t)) return 'Sì, si può pagare anche con la carta.';
+  if(/buon[oi] regalo|regalare|regalo/.test(t)) return 'Sì, facciamo i buoni regalo. Per importi e dettagli ti faccio sapere dal salone.';
+  if(/parchegg/.test(t)) return 'Non c\'è un parcheggio privato: si parcheggia nelle strade intorno al salone.';
+  if(/prodott|shampoo|cera|olio|balsamo|davines/.test(t)&&!leggiServizio(t)) return 'Sì, in salone vendiamo prodotti per capelli e barba. Se cerchi qualcosa in particolare chiedo e ti faccio sapere.';
+  if(/quanto costa|prezz|quanto viene|quanto si paga|listino/.test(t)) return {avviso:'Un cliente chiede i prezzi', testo:'Ti faccio sapere il prezzo dal salone, ho appena avvisato Giovanni.'};
+  if(/dove siete|indirizzo|dove si trova|come arrivo/.test(t)) return {avviso:'Un cliente chiede l\'indirizzo', testo:'Ti mando la posizione dal salone tra poco, ho avvisato Giovanni.'};
+  if(/che orari|siete aperti|orario|a che ora aprite|chiudete/.test(t)) return 'Siamo aperti dal martedì al sabato, 9-13 e 15-20. Lunedì e domenica chiuso.\n(Orari di prova: quelli veri li mette Giovanni.)';
+  if(/ritardo|in ritardo|arrivo tardi|faccio tardi/.test(t)) return {avviso:'Un cliente avvisa che è in ritardo', testo:'Grazie per avvisare. Lo dico subito al barbiere e ti faccio sapere se riesce ad aspettarti.'};
+  return null;
+}
+
+function rispondi(testo){
+  const t=norm(testo).trim(); const out=[];
+  const dire=x=>out.push(x);
+
+  // Disdire o spostare
+  if(/disdic|disdir|annull|cancell|non posso venire|non riesco a venire|non vengo/.test(t)){
+    const p=S.prenotazioni.at(-1);
+    if(!p){ dire('Non trovo appuntamenti a questo numero. Se l\'hai preso in un altro modo, dimmi giorno e ora e controllo.'); return out; }
+    giornata(p.d)[p.b]=giornata(p.d)[p.b].filter(o=>o!==p.slot); S.prenotazioni.pop(); disegnaAgenda();
+    dire(`Fatto, ho disdetto ${p.servNome} di ${nomeData(p.d)} alle ${hhmm(p.t)} con ${nomeB(p.b)}. Grazie per aver avvisato, vuoi prenotare un altro giorno?`);
+    avviso(`${p.nome} ha disdetto ${p.servNome} di ${nomeData(p.d)} alle ${hhmm(p.t)} (${nomeB(p.b)}). Il posto è di nuovo libero.`);
+    reset(); return out;
+  }
+  if(/spost|cambiare orario|cambiare giorno|anticipar|posticip/.test(t)&&S.prenotazioni.length){
+    const p=S.prenotazioni.at(-1);
+    giornata(p.d)[p.b]=giornata(p.d)[p.b].filter(o=>o!==p.slot); S.prenotazioni.pop(); disegnaAgenda();
+    reset(); S.serv=p.servId; S.barb=p.b; S.nome=p.nome; S.spostando=p; S.chiestoBarbiere=true;
+    S.giorno=leggiGiorno(t); S.ora=leggiOra(t);
+    if(!S.giorno){ S.step='giorno'; dire(`Va bene, sposto ${p.servNome} con ${nomeB(p.b)}. Per che giorno e a che ora ti va meglio?`); return out; }
+    return proponi(out);
+  }
+
+  // Risposte a domande frequenti
+  const f=faq(t);
+  if(f){ if(typeof f==='string') dire(f); else { dire(f.testo); avviso(f.avviso+': "'+testo+'"'); } if(!leggiGiorno(t)&&!leggiOra(t)) return out; }
+
+  // Scelta tra gli orari proposti
+  if(S.step==='scelta'){
+    let i=null;
+    if(/prima|primo|\b1\b/.test(t)) i=0; else if(/second|\b2\b/.test(t)) i=1; else if(/terz|\b3\b/.test(t)) i=2;
+    const o=leggiOra(t);
+    if(i==null&&o&&o.esatta!=null){ i=S.prop.findIndex(p=>p.t===o.esatta); if(i<0) i=null; }
+    if(i==null&&SI.test(t)&&S.prop.length===1) i=0;
+    if(i==null&&SI.test(t)){ dire('Dimmi quale: la prima, la seconda o la terza?'); return out; }
+    if(i!=null&&S.prop[i]){ S.scelta=S.prop[i]; return chiudi(out); }
+    if(NO.test(t)){ S.step=null; S.prop=[]; S.ora=null; dire('Nessun problema. Dimmi tu un altro giorno o un orario che ti va meglio.'); return out; }
+  }
+  if(S.step==='nome'){
+    const n=testo.replace(/^(mi chiamo|sono|il nome e|il mio nome e|a nome di)\s+/i,'').trim().split(/\s+/).slice(0,3).join(' ');
+    if(n.length>=2){ S.nome=n.replace(/\b\w/g,c=>c.toUpperCase()); return prenota(out); }
+  }
+
+  // Raccolgo i dati della prenotazione
+  const sv=leggiServizio(t), gb=leggiBarbiere(t), gg=leggiGiorno(t), oo=leggiOra(t);
+  if(sv==='nonfatto'){ dire('Mi dispiace, permanenti e colori non li facciamo. Da noi puoi prenotare taglio, barba oppure taglio e barba.'); return out; }
+  if(sv) S.serv=sv; if(gb) S.barb=gb; if(gg) S.giorno=gg; if(oo) S.ora=oo;
+  if(S.step&&!sv&&!gb&&!gg&&!oo&&!['scelta','nome'].includes(S.step)&&!(S.step==='barbiere'&&/no|nessuno/.test(t))){
+    const domanda={servizio:'Cosa ti facciamo: taglio, barba oppure taglio e barba?',giorno:'Per che giorno ti prenoto?',barbiere:'Hai un barbiere di fiducia o va bene chi è libero?'}[S.step];
+    dire('Mi occupo solo delle prenotazioni di GAAP. '+(domanda||'')); return out;
+  }
+  if(S.step==='barbiere'&&!gb) S.barb='any';
+  const vuolePrenotare=sv||gg||oo||gb||/prenot|appuntament|posto|libero|disponibil|venire/.test(t)||S.step;
+
+  if(!vuolePrenotare){
+    if(/^(ciao|buongiorno|buonasera|salve|ehi|hey)\b/.test(t)) dire('Ciao, sono l\'assistente di GAAP. Ti prenoto un taglio, una barba o tutti e due: dimmi il giorno e l\'ora che preferisci.');
+    else if(/grazie|ok grazie|perfetto grazie/.test(t)) dire('Figurati, a presto da GAAP.');
+    else if(!f) dire('Mi occupo solo delle prenotazioni di GAAP. Se vuoi prenotare dimmi il servizio e il giorno, il resto lo sistemo io.');
+    return out;
+  }
+  if(!S.serv){ S.step='servizio'; dire(`Certo. Cosa ti facciamo: taglio, barba oppure taglio e barba?`); return out; }
+  if(!S.giorno){ S.step='giorno'; dire(`Perfetto, ${SALONE.servizi[S.serv].nome}. Per che giorno?`); return out; }
+  const d=S.giorno;
+  if(!SALONE.orari[d.getDay()].length){ S.giorno=null; dire(`${GIORNI[d.getDay()][0].toUpperCase()+GIORNI[d.getDay()].slice(1)} siamo chiusi. Ti va bene un altro giorno, dal martedì al sabato?`); return out; }
+  if(d>piuGiorni(oggi0(),SALONE.anticipoGiorni)){ S.giorno=null; dire('Si può prenotare fino a un mese prima. Scegli un giorno più vicino.'); return out; }
+  if(S.barb===null&&!S.chiestoBarbiere){ S.chiestoBarbiere=true; S.step='barbiere'; dire('Hai un barbiere di fiducia? Giovanni, Pio, Valerio, Antonello o Nunzio, oppure va bene chi è libero.'); return out; }
+  return proponi(out);
+}
+
+function proponi(out){
+  const d=S.giorno, bid=S.barb==='any'?null:S.barb, serv=S.serv;
+  const dire=x=>out.push(x);
+  if(S.ora&&S.ora.esatta!=null){
+    const ok=liberi(d,serv,bid).filter(x=>x.t===S.ora.esatta);
+    if(ok.length){ S.prop=[ok[0]]; S.step='scelta'; dire(`${nomeData(d)[0].toUpperCase()+nomeData(d).slice(1)} alle ${hhmm(ok[0].t)} c'è posto con ${nomeB(ok[0].b)}. Te lo confermo?`); return out; }
+  }
+  let lista=liberi(d,serv,bid, S.ora&&S.ora.fascia?S.ora.fascia[0]:null, S.ora&&S.ora.fascia?S.ora.fascia[1]:null);
+  if(S.ora&&S.ora.esatta!=null) lista.sort((a,b)=>Math.abs(a.t-S.ora.esatta)-Math.abs(b.t-S.ora.esatta));
+  // tre orari diversi tra loro
+  const scelti=[]; for(const x of lista){ if(scelti.every(s=>s.t!==x.t)) scelti.push(x); if(scelti.length===3) break; }
+  scelti.sort((a,b)=>a.t-b.t);
+  if(!scelti.length){
+    const domani=piuGiorni(d,1); S.giorno=null; S.ora=null;
+    dire(`${nomeData(d)[0].toUpperCase()+nomeData(d).slice(1)} ${bid?'con '+nomeB(bid)+' ':''}è tutto pieno. Vuoi provare un altro giorno${bid?' o un altro barbiere':''}?`); return out;
+  }
+  S.prop=scelti; S.step='scelta'; const occupata=S.ora&&S.ora.esatta!=null; S.ora=null;
+  const righe=scelti.map((x,i)=>`${i+1}. alle ${hhmm(x.t)} con ${nomeB(x.b)}`).join('\n');
+  dire(`${occupata?'A quell\'ora è occupato. ':''}Per ${nomeData(d)} ho questi posti:\n${righe}\nQuale preferisci?`);
+  return out;
+}
+
+function chiudi(out){
+  if(!S.nome){ S.step='nome'; out.push('Perfetto. A che nome lo segno?'); return out; }
+  return prenota(out);
+}
+
+function prenota(out){
+  const x=S.scelta, d=S.giorno, sv=SALONE.servizi[S.serv];
+  if(!valido(d,x.b,x.t,sv.min)){ S.step=null; out.push('Mi dispiace, quel posto è stato appena preso. Ti propongo altri orari.'); return proponi(out); }
+  const slot={da:x.t,a:x.t+sv.min,mio:true,cliente:S.nome,servizio:sv.nome};
+  giornata(d)[x.b].push(slot);
+  S.prenotazioni.push({d,t:x.t,b:x.b,servId:S.serv,servNome:sv.nome,nome:S.nome,slot});
+  out.push({card:true, titolo:S.spostando?'APPUNTAMENTO SPOSTATO':'APPUNTAMENTO CONFERMATO', testo:`${S.nome}\n${sv.nome[0].toUpperCase()+sv.nome.slice(1)} con ${nomeB(x.b)}\n${nomeData(d)[0].toUpperCase()+nomeData(d).slice(1)} alle ${hhmm(x.t)}\nGAAP · Santeramo in Colle`});
+  out.push(`Fatto, ti aspettiamo. Ti mando un promemoria il giorno prima e due ore prima. Se non riesci a venire scrivimi pure, si può disdire sempre.`);
+  out.push({sys:`${nomeB(x.b)} e Giovanni lo vedono già sul calendario del telefono.`});
+  avvisoAgenda(d);
+  const nome=S.nome; reset(); S.nome=nome; S.chiestoBarbiere=false; S.spostando=null;
+  return out;
+}
+
+// ===================== CHAT =====================
+const msgs=document.getElementById('msgs'), inp=document.getElementById('inp');
+const ora=()=>{const d=new Date();return hhmm(d.getHours()*60+d.getMinutes());};
+function bolla(testo,chi,vocale){
+  const e=document.createElement('div'); e.className='m '+chi+(vocale?' vocale':'');
+  e.textContent=testo; const t=document.createElement('span'); t.className='t'; t.textContent=ora(); e.appendChild(t);
+  msgs.appendChild(e); msgs.scrollTop=1e9;
+}
+function mostra(r){
+  if(typeof r==='string') return bolla(r,'in');
+  if(r.card){ const c=document.createElement('div'); c.className='card'; c.innerHTML='<h4></h4><div></div>'; c.querySelector('h4').textContent=r.titolo; c.querySelector('div').textContent=r.testo; c.querySelector('div').style.whiteSpace='pre-line'; msgs.appendChild(c); }
+  if(r.sys){ const s=document.createElement('div'); s.className='sys'; s.textContent=r.sys; msgs.appendChild(s); }
+  msgs.scrollTop=1e9;
+}
+async function invia(testo,vocale){
+  testo=testo.trim(); if(!testo) return;
+  bolla(testo,'out',vocale); inp.value=''; aggiornaTasti(); chips([]);
+  const r=rispondi(testo);
+  const ty=document.createElement('div'); ty.className='typing'; ty.textContent='sta scrivendo…'; msgs.appendChild(ty); msgs.scrollTop=1e9;
+  await new Promise(x=>setTimeout(x,700+Math.random()*500)); ty.remove();
+  for(const x of r){ mostra(x); await new Promise(z=>setTimeout(z,350)); }
+  suggerimenti();
+}
+function chips(l){ const c=document.getElementById('chips'); c.innerHTML=''; for(const x of l){ const b=document.createElement('button'); b.textContent=x; b.onclick=()=>invia(x); c.appendChild(b);} c.style.display=l.length?'flex':'none'; }
+function suggerimenti(){
+  if(S.step==='scelta') return chips(S.prop.length>1?['La prima','La seconda','La terza','Nessuno va bene']:['Sì','No, un altro orario']);
+  if(S.step==='servizio') return chips(['Taglio','Barba','Taglio e barba']);
+  if(S.step==='giorno') return chips(['Oggi','Domani','Sabato']);
+  if(S.step==='barbiere') return chips(['Con Pio','Con Antonello','Chi è libero']);
+  if(S.step==='nome') return chips(['Marco Rossi']);
+  if(S.prenotazioni.length) return chips(['Devo spostarlo','Non posso venire','Posso portare il cane?','Grazie']);
+  chips(['Vorrei un taglio sabato pomeriggio','Domani alle 18 taglio e barba con Pio','Fate il colore?','Dove si parcheggia?']);
+}
+inp.addEventListener('keydown',e=>{ if(e.key==='Enter') invia(inp.value); });
+inp.addEventListener('input',aggiornaTasti);
+document.getElementById('invia').onclick=()=>invia(inp.value);
+function aggiornaTasti(){ const pieno=!!inp.value.trim(); document.getElementById('invia').style.display=pieno?'grid':'none'; document.getElementById('mic').style.display=pieno?'none':'grid'; }
+
+// Vocali: il telefono trascrive la voce (gratis, nel browser)
+const Riconosci=window.SpeechRecognition||window.webkitSpeechRecognition;
+function ascolta(onTesto,onFine){
+  if(!Riconosci) return false;
+  const r=new Riconosci(); r.lang='it-IT'; r.interimResults=false; r.maxAlternatives=1;
+  let preso=false;
+  r.onresult=e=>{ preso=true; onTesto(e.results[0][0].transcript); };
+  r.onend=()=>onFine&&onFine(preso); r.onerror=()=>{};
+  r.start(); return r;
+}
+const mic=document.getElementById('mic');
+mic.onclick=()=>{
+  if(!Riconosci){ bolla('Su questo telefono i vocali nella demo non funzionano: scrivi pure, l\'assistente vero li capisce sempre.','in'); return; }
+  mic.classList.add('rec');
+  ascolta(t=>invia(t,true),()=>mic.classList.remove('rec'));
+};
+
+// ===================== CHIAMATA =====================
+let inChiamata=false, rec=null;
+const st=document.getElementById('telStato'), sub=document.getElementById('sottotitolo');
+function voce(){ const v=speechSynthesis.getVoices().filter(v=>v.lang&&v.lang.startsWith('it')); return v.find(x=>/luca|alice|federica|paola|google/i.test(x.name))||v[0]; }
+function parla(testo){
+  return new Promise(ok=>{
+    sub.textContent=testo;
+    if(!('speechSynthesis' in window)) return setTimeout(ok,1500);
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(testo.replace(/\n\d\. /g,', ').replace(/\n/g,'. ')); u.lang='it-IT'; const v=voce(); if(v) u.voice=v; u.rate=1.04;
+    u.onend=ok; u.onerror=ok; speechSynthesis.speak(u);
+  });
+}
+async function turno(testo){
+  sub.innerHTML=''; const tu=document.createElement('span'); tu.className='tu'; tu.textContent='Tu: '+testo;
+  const r=rispondi(testo); const frasi=r.map(x=>typeof x==='string'?x:x.card?'Ti confermo l\'appuntamento.':null).filter(Boolean);
+  for(const f of frasi){ if(!inChiamata) return; await parla(f); }
+  sub.appendChild(tu);
+  if(!inChiamata) return;
+  if(S.prenotazioni.length&&!S.step&&frasi.some(f=>/ti aspettiamo/.test(f))){ await parla('Ti mando anche il riepilogo su WhatsApp. Ciao e a presto.'); fineChiamata(); return; }
+  ascoltaChiamata();
+}
+function ascoltaChiamata(){
+  if(!inChiamata) return;
+  if(!Riconosci){ document.getElementById('telTesto').style.display='flex'; st.textContent='Scrivi la risposta (su questo telefono il microfono non funziona nella demo)'; return; }
+  st.textContent='Ti ascolto…';
+  rec=ascolta(t=>{ st.textContent='In chiamata'; turno(t); },preso=>{ if(!preso&&inChiamata) setTimeout(ascoltaChiamata,300); });
+}
+document.getElementById('chiama').onclick=async()=>{
+  inChiamata=true; reset();
+  document.getElementById('chiama').style.display='none'; document.getElementById('chiudi').style.display='grid';
+  st.textContent='Chiamata in corso'; await new Promise(x=>setTimeout(x,1200));
+  await parla('Ciao, hai chiamato GAAP. Sono l\'assistente del salone, ti posso prenotare un appuntamento. Cosa ti serve?');
+  ascoltaChiamata();
+};
+function fineChiamata(){
+  inChiamata=false; try{rec&&rec.abort()}catch(e){} speechSynthesis&&speechSynthesis.cancel();
+  document.getElementById('chiama').style.display='grid'; document.getElementById('chiudi').style.display='none';
+  document.getElementById('telTesto').style.display='none'; st.textContent='Chiamata terminata. Guarda l\'Agenda.';
+}
+document.getElementById('chiudi').onclick=fineChiamata;
+const telInp=document.getElementById('telInp');
+const mandaTel=()=>{ if(telInp.value.trim()){ const v=telInp.value; telInp.value=''; turno(v);} };
+document.getElementById('telInvia').onclick=mandaTel; telInp.addEventListener('keydown',e=>{ if(e.key==='Enter') mandaTel(); });
+
+// ===================== AGENDA =====================
+let giornoAg=oggi0(); while(!SALONE.orari[giornoAg.getDay()].length) giornoAg=piuGiorni(giornoAg,1);
+function avvisoAgenda(d){ giornoAg=new Date(d); disegnaAgenda(); }
+function disegnaAgenda(){
+  document.getElementById('agTitolo').textContent=nomeData(giornoAg);
+  const g=document.getElementById('griglia'); g.innerHTML='';
+  const h=x=>{const e=document.createElement('div'); e.className='h'; e.textContent=x; g.appendChild(e);};
+  h(''); SALONE.barbieri.forEach(b=>h(b.nome));
+  const fasce=SALONE.orari[giornoAg.getDay()];
+  if(!fasce.length){ const e=document.createElement('div'); e.style.gridColumn='1/-1'; e.className='vuoto'; e.style.padding='20px 0'; e.textContent='Salone chiuso.'; g.appendChild(e); return; }
+  const gior=giornata(giornoAg);
+  for(const [a,c] of fasce){
+    for(let t=a;t<c;t+=15){
+      const o=document.createElement('div'); o.className='ora'; o.textContent=t%60===0?hhmm(t):''; g.appendChild(o);
+      SALONE.barbieri.forEach(b=>{
+        const s=document.createElement('div'); s.className='slot';
+        const app=gior[b.id].find(x=>t>=x.da&&t<x.a);
+        if(app){ s.style.background=b.col; s.classList.add(app.mio?'mio':'occ'); if(app.mio) s.title=app.cliente+' · '+app.servizio; }
+        g.appendChild(s);
+      });
+    }
+    if(c!==fasce.at(-1)[1]){ const p=document.createElement('div'); p.style.gridColumn='1/-1'; p.style.height='10px'; g.appendChild(p); }
+  }
+}
+document.getElementById('prec').onclick=()=>{ do{ giornoAg=piuGiorni(giornoAg,-1);}while(!SALONE.orari[giornoAg.getDay()].length); disegnaAgenda(); };
+document.getElementById('succ').onclick=()=>{ do{ giornoAg=piuGiorni(giornoAg,1);}while(!SALONE.orari[giornoAg.getDay()].length); disegnaAgenda(); };
+function avviso(testo){
+  const a=document.getElementById('avvisi'); if(a.querySelector('.vuoto')) a.innerHTML='';
+  const p=document.createElement('p'); p.textContent=ora()+' · '+testo; p.style.marginBottom='6px'; a.prepend(p);
+}
+
+// ===================== SCHEDE =====================
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x===b));
+  document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id===b.dataset.s));
+  if(b.dataset.s==='agenda') disegnaAgenda();
+  if(b.dataset.s!=='tel'&&inChiamata) fineChiamata();
+});
+
+// Avvio
+bolla('Ciao Giovanni, questa è una prova dell\'assistente di GAAP. Scrivimi come se fossi un cliente, anche con un vocale, e prova a prenotare. Puoi anche chiamare dalla scheda Chiamata.','in');
+suggerimenti(); disegnaAgenda();
+if('speechSynthesis' in window) speechSynthesis.getVoices();
+</script>
+</body>
+</html>
