@@ -724,7 +724,8 @@ function chiudiTutorial(){ document.querySelectorAll('.evid').forEach(e=>e.class
 document.getElementById('tutAvanti').onclick=()=>{ if(passo<PASSI.length-1){ passo++; mostraPasso(); } else chiudiTutorial(); };
 document.getElementById('tutSalta').onclick=chiudiTutorial;
 let visto=false; try{ visto=localStorage.getItem('gaapTut')==='1'; }catch(e){}
-if(!visto) setTimeout(apriTutorial,600);
+const forzaTut=/[?&]tutorial\b/.test(location.search);
+if(!visto||forzaTut) setTimeout(apriTutorial,600);
 
 // Dentro Instagram, Facebook o altre app la voce spesso non va: lo diciamo subito.
 const dentroApp=/FBAN|FBAV|Instagram|Line\/|WhatsApp|GSA\//i.test(navigator.userAgent);
