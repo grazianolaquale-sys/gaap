@@ -172,6 +172,7 @@ td.n,th.n{text-align:right}
   </div>
   <div id="cTesti"></div>
   <div id="cChips"></div>
+  <div id="cScrivi" style="display:flex;gap:8px;width:100%;margin-bottom:14px"><input id="cInp" placeholder="Rispondi qui (o detta con il microfono della tastiera)" enterkeyhint="send" style="flex:1;min-width:0;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08);color:#fff;border-radius:22px;padding:11px 14px;font:15px inherit"><button class="tondo" id="cInvia" aria-label="Invia"><svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg></button></div>
   <div style="width:100%">
     <div class="ctasti">
       <div><button id="cAlto" aria-label="Altoparlante"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg></button><div class="etich">Altoparlante</div></div>
@@ -514,7 +515,7 @@ const ERR_VOCE={
   'no-speech':'Non ti ho sentito: parla appena vedi "Ti ascolto".',
   'nosupport':'Questo browser non capisce la voce. Apri il link in Safari (iPhone) o Chrome (Android), oppure tocca le risposte pronte.'
 };
-let micPermesso=null;
+let micPermesso=null, vocaleKO=false;
 async function chiediMicrofono(){
   if(micPermesso===true) return true;
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ micPermesso=!!Riconosci; return micPermesso; }
@@ -541,7 +542,7 @@ mic.onclick=async()=>{
   if(mic.classList.contains('rec')) return;
   if(!(await chiediMicrofono())){ bolla(ERR_VOCE[Riconosci?'not-allowed':'nosupport'],'in'); return; }
   mic.classList.add('rec'); inp.placeholder='Ti ascolto… parla ora';
-  ascolta({parziale:t=>{inp.value=t;}, finale:t=>{ inp.value=''; invia(t,true); }, errore:c=>bolla(ERR_VOCE[c]||'Non sono riuscito a sentirti, riprova.','in'), fine:()=>{ mic.classList.remove('rec'); inp.placeholder='Messaggio'; tasti(); }});
+  ascolta({parziale:t=>{inp.value=t;}, finale:t=>{ inp.value=''; invia(t,true); }, errore:c=>bolla(ERR_VOCE[c]||'Non sono riuscito a sentirti, riprova.','in'), fine:preso=>{ mic.classList.remove('rec'); inp.placeholder='Messaggio'; tasti(); if(!preso){ vocaleKO=true; inp.focus(); bolla('Il microfono di questa pagina non risponde su questo telefono. Tocca il campo Messaggio e usa il microfono della tastiera per dettare: l\'assistente vero i vocali li capisce sempre.','in'); } }});
 };
 
 // Menu e pagine
@@ -577,6 +578,7 @@ function cChips(l){ const c=document.getElementById('cChips'); c.innerHTML=''; f
 function fermaAscolto(){ if(recC){ try{recC.abort()}catch(e){} recC=null; } cMic.classList.remove('rec'); cMicEt.textContent='Tocca e parla'; }
 function ascoltaChiamata(){
   if(!inChiamata||parlando) return;
+  if('speechSynthesis' in window&&speechSynthesis.speaking) speechSynthesis.cancel();
   fermaAscolto();
   if(micPermesso===false||!Riconosci){ cStato.textContent=Riconosci?ERR_VOCE['not-allowed']:ERR_VOCE.nosupport; cChips(proposte()); return; }
   cMic.classList.add('rec'); cMicEt.textContent='Ti ascolto…'; cStato.textContent='Ti ascolto… parla ora';
@@ -585,7 +587,7 @@ function ascoltaChiamata(){
     parziale:t=>{ if(!bollaViva) bollaViva=riga('','u'); bollaViva.textContent=t+' …'; },
     finale:t=>{ if(bollaViva){ bollaViva.remove(); bollaViva=null; } turno(t); },
     errore:c=>{ cStato.textContent=ERR_VOCE[c]||'Non ti ho capito, riprova.'; },
-    fine:preso=>{ cMic.classList.remove('rec'); cMicEt.textContent='Tocca e parla'; recC=null; if(!preso&&inChiamata){ if(bollaViva){bollaViva.remove();bollaViva=null;} if(/ascolto/.test(cStato.textContent)) cStato.textContent='Non ti ho sentito: tocca il microfono e riprova, o tocca una risposta'; cChips(proposte()); } }
+    fine:preso=>{ cMic.classList.remove('rec'); cMicEt.textContent='Tocca e parla'; recC=null; if(!preso&&inChiamata){ if(bollaViva){bollaViva.remove();bollaViva=null;} vocaleKO=true; cStato.textContent='Il microfono qui non risponde: rispondi con i tasti o scrivi qui sotto'; cChips(proposte()); } }
   });
   cChips(proposte());
 }
@@ -596,22 +598,23 @@ async function turno(testo){
   for(const f of frasi){ if(!inChiamata) return; await parla(f.replace('Ti mando un promemoria','Ti mando il riepilogo su WhatsApp e un promemoria')); }
   if(!inChiamata) return;
   if(r.some(x=>x&&x.card)){ await parla('Grazie della chiamata, ciao.'); chiudiChiamata(); return; }
-  setTimeout(ascoltaChiamata,250);
+  if(vocaleKO){ cStato.textContent='Tocca una risposta o scrivi qui sotto'; cChips(proposte()); } else setTimeout(ascoltaChiamata,700);
 }
 document.getElementById('btnChiama').onclick=()=>{
-  reset(); S.chiestoBarbiere=false; inChiamata=true; cTesti.innerHTML=''; cChips([]); riga('Parla quando vedi «Ti ascolto». Le parole che dici compaiono qui. Puoi anche toccare le risposte pronte.','h');
+  reset(); S.chiestoBarbiere=false; inChiamata=true; cTesti.innerHTML=''; cChips([]); riga('Parla quando vedi «Ti ascolto». Se il microfono non risponde, tocca le risposte pronte o scrivi qui sotto.','h');
   document.getElementById('chiamata').classList.remove('sotto');
   if('speechSynthesis' in window){ speechSynthesis.cancel(); scegliVoce(); }
   // 1) la voce parte subito, dentro il tocco  2) intanto si chiede il microfono
   const saluto=parla('Ciao, hai chiamato GAAP. Sono l\'assistente del salone, ti posso prenotare un appuntamento. Cosa ti serve?');
   const permesso=chiediMicrofono();
-  Promise.all([saluto,permesso]).then(()=>{ if(inChiamata) ascoltaChiamata(); });
+  Promise.all([saluto,permesso]).then(()=>{ if(!inChiamata) return; if(vocaleKO){ cStato.textContent='Tocca una risposta o scrivi qui sotto'; cChips(proposte()); } else setTimeout(ascoltaChiamata,700); });
 };
 cMic.onclick=()=>{
   if(!inChiamata) return;
   if(recC){ fermaAscolto(); return; }
-  if(parlando&&'speechSynthesis' in window){ speechSynthesis.cancel(); parlando=false; }
-  ascoltaChiamata();
+  // sull'iPhone il microfono riparte bene solo se la voce è ferma da un attimo
+  if('speechSynthesis' in window) speechSynthesis.cancel(); parlando=false;
+  cStato.textContent='Un attimo…'; setTimeout(ascoltaChiamata,450);
 };
 function chiudiChiamata(){
   inChiamata=false; fermaAscolto(); if('speechSynthesis' in window) speechSynthesis.cancel();
@@ -620,6 +623,9 @@ function chiudiChiamata(){
   if(S.prenotazioni.length){ const p=S.prenotazioni.at(-1); mostra({card:true,titolo:'APPUNTAMENTO CONFERMATO',testo:`${p.nome}\n${p.servNome[0].toUpperCase()+p.servNome.slice(1)} con ${nomeB(p.b)}\n${nomeData(p.d)[0].toUpperCase()+nomeData(p.d).slice(1)} alle ${hhmm(p.t)}\nGAAP · Santeramo in Colle`}); mostra({sys:'Prenotato al telefono: il riepilogo arriva anche qui su WhatsApp.'}); suggerimenti(); }
 }
 document.getElementById('cChiudi').onclick=chiudiChiamata;
+const cInp=document.getElementById('cInp');
+const mandaC=()=>{ const v=cInp.value.trim(); if(v&&inChiamata&&!parlando){ cInp.value=''; cInp.blur(); turno(v); } };
+document.getElementById('cInvia').onclick=mandaC; cInp.addEventListener('keydown',e=>{ if(e.key==='Enter') mandaC(); });
 
 // ===================== AGENDA =====================
 let giornoAg=oggi0(); while(!SALONE.orari[giornoAg.getDay()].length) giornoAg=piuGiorni(giornoAg,1);
@@ -720,10 +726,13 @@ document.getElementById('tutSalta').onclick=chiudiTutorial;
 let visto=false; try{ visto=localStorage.getItem('gaapTut')==='1'; }catch(e){}
 if(!visto) setTimeout(apriTutorial,600);
 
+// Dentro Instagram, Facebook o altre app la voce spesso non va: lo diciamo subito.
+const dentroApp=/FBAN|FBAV|Instagram|Line\/|WhatsApp|GSA\//i.test(navigator.userAgent);
 // ===================== AVVIO =====================
 (function(){
   const d=document.createElement('div'); d.className='data'; d.textContent='OGGI'; msgs.appendChild(d);
   const c=document.createElement('div'); c.className='cifr'; c.textContent='Demo dell\'assistente GAAP. Scrivi come un cliente, manda un vocale o chiama dalla cornetta in alto. Agenda e cassa sono nel menu ⋮'; msgs.appendChild(c);
+  if(dentroApp){ const w=document.createElement('div'); w.className='cifr'; w.textContent='Per provare voce e chiamata apri questo link in Safari o Chrome: dentro le app il microfono spesso non funziona.'; msgs.appendChild(w); }
   bolla('Ciao, sono l\'assistente di GAAP. Ti prenoto un taglio, una barba o tutti e due: dimmi giorno e ora che preferisci.','in');
   suggerimenti();
 })();
